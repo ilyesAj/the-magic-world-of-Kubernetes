@@ -4,9 +4,7 @@ One year study on kubernetes subject
 # Terminology
 - **bridge networks** : a link layer that forwards traffic between network segments . For docker , a bridge network allows containers connected to the same bridge to communicate while providing isolation from containers which are not connected to that bridge network.
 - **NAT**: Network address Translation : NAT translates the IP addresses of computers in a local network in a single IP ADDRESS
-- **Pod** : smallest component in a kubernetes cluster . it contains one or more containers and unique IP Address (Container of containers)
-- **Node**: Known also as Minion is a Virtual or physical machine that contain the services nessary to run pods and managed by the master components (Container runtime, kubelet, kube-proxy)
-- **Container**: A container is a standard unit of software that packages up an application with all its sependencies so that the application runs quickely and reliably from one container to another . benefits of containers (https://cloud.google.com/containers/)
+- **RBAC**: (Role-Based Access Control) is an approch to restricting system access to authorized users .RBAC lets a user have access rights only to the information they need to .
 - **stateless applications**: runs one function or service and does not require a persistant storage to work . all dataflow passed via a stateless service is typically transitory and the state is stored only in a separate a third-party back-end service like a database .Any associated storage is typically ephemeral. it ensures scalability and portability of the application .
 - **stateful applications** : are typically databases .those applications processes requests based on the information relayed with each request and information stored from earlier requests .As a result , a stateful application must hold onto state information generated during the processing of the earlier request. [if you wonder how we can maintain state information ? ]( https://www.bizety.com/2018/08/21/stateful-vs-stateless-architecture-overview/)
 - **Monolithic application**: describes a single-tiered software application in which the user interface and data access code are combined into a single program from a single platform.A modification made to a small section of code might require building and deploying an entirely new version of software.
@@ -30,10 +28,11 @@ it amy lead to duplicated code BUT the cost of duplicating a bit of code is a lo
     - 👷 [3rd example] (https://github.com/vmudigal/microservices-sample)
 - **Serverless Architecture** : is a way of building applications without need to manage infrastructure . Developers will more focus on their code rather then the infra .   
 ![serverless](assets/README-10a8f.png)
+
   [🚗 more about Serverless topic](https://medium.com/swlh/serverless-architecture-complete-reference-guide-2019-55363c08d1be)
   >The essence of the **serverless** trend is the absence of the server concept **during software development**
 
-  :question: is it cheaper : it depends , Car analogy :
+  :question: is it cheaper than classic approach ? : it depends , Car analogy :
   ![cheaper ?](assets/README-9c5ab.png)
 
 # The right Definition of Kubernetes
@@ -57,11 +56,29 @@ Kubernetes is based on the following *design ideals*:
 - **Advance the state of the art**: kubernetes is designed to advance the cloud native and Devops state of the art without forcing applications to depends on Kubernetes API .
 
 # Kubernetes Architecture
+We can define Kubernetes cluster with 5 main components :
+![main architecture](assets/README-9c8cf.png)
+- **Container**: A container is a standard unit of software that packages up an application with all its dependencies so that the application runs quickly and reliably from one container to another . benefits of containers (https://cloud.google.com/containers/)
+- **Pod** : smallest component in a kubernetes cluster . it contains one or more containers and unique IP Address (Container of containers)
+- **Node**: Known also as Minion is a Virtual or physical machine that contain all the necessary services to run pods (Container runtime, kubelet, kube-proxy).they are managed by the master (Pods Manager :oncoming_police_car:)
+- **master (Cluster control plane)** : This is the Boss :fire: this component is a responsible for exposing the (API), scheduling the deployment and managing all the components of the cluster .
 
+In the next section we will go into the details of each component:
+## Container
+I suppose that you have minimum requirement on this subject to work on kubernetes
+## pod
+https://medium.com/faun/the-first-introduction-to-kubernetes-62d26f99caff
+## Node
+![node archi](assets/README-d5a15.png)
+## Master
+![master archi](assets/README-ec8ab.png)
 # Cluster networking Basics
 - Container-to-Container communications:
 - pod-to-pod communications
 - pod-to-service communications
 - external-to-servioe communications
 # references
-https://www.bizety.com/2018/08/21/stateful-vs-stateless-architecture-overview/
+- https://www.bizety.com/2018/08/21/stateful-vs-stateless-architecture-overview/
+- https://github.com/tkssharma/k8s-learning
+- https://medium.com/tkssharma/kubernetes-architecture-quick-introduction-4ade0bd250d3
+- https://github.com/kubernetes/community/blob/master/contributors/design-proposals/architecture/architecture.md
