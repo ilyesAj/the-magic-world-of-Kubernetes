@@ -67,6 +67,9 @@ In the next section we will go into the details of each component:
 ## Container
 I suppose that you have minimum requirement on this subject to work on kubernetes
 ## pod
+
+![pod_container](assets/README-f380a4dd.png)
+
 https://medium.com/faun/the-first-introduction-to-kubernetes-62d26f99caff
 ## Node
 ![node archi](assets/README-d5a15.png)
