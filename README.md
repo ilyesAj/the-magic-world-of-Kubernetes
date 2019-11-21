@@ -11,6 +11,8 @@ One year study on kubernetes subject
 - **batch processing**: a group of jobs, data or programs treated as one unit (traitement en lot in french)
 - **legacy system**: outdated system but still being used .
 - **Greenfield project**: A system developed in a total new environment:  new infra, new customers and even new owners.
+- **CNI**: container network interface
+- **CIDR**:(Classless inter-domain routing) also known as Supernets is a method for assigning IP addresses without using the standard IP address classes like Class A, Class B or Class C . For example, in the CIDR address 65.70.30.10/26, the /26 indicates the first 26 bits are used to identify the unique network leaving the remaining bits to identify the hosts. with CIDR , we have more control of the network, we can set a 50.25.11.2/17 mask (which whose forbiden in subnetting with classes) with a total of 32,768 IPs in range between 50.25.0.0 - 50.25.127.255.
 -  **Microservices**: microservice architecture theory : 'Small autonomous services modeled around a business domain that work together.' by sam newman . amicroservice architecture is an architectural style that sy=tructures an application as a collection of services that are :
   - Loosely coupled : each component of the system has or make use of little or no knowledge of the the components of the system
 ![loosely coupled](assets/README-4b506.png)
@@ -67,7 +69,21 @@ In the next section we will go into the details of each component:
 ## Container
 I suppose that you have minimum requirement on this subject to work on kubernetes
 ## pod
+The smallest "unit of work " of kubernetes considered as **Ephemral**. Pods are one or more containers that share a network, namespace, and part of a single context.
+a shared pod's context is a set of linux namespaces, cgroups  ...
 
+containers within same pod share an IP address and port space they can find each other via localhost and can communicate with each other via staandard inter-process communication like POSIX ..
+:grey_exclamation:Containers in different Pods can not communicate by IPC (inter-process communication ) without special config
+
+Pods model is defined as application specific "logical host", it means that a pod contains one or more application containers which are relatively tighly coupled.
+:exclamation:Pods are scaled up and down as a unit, all containers in a pod must scale together regardless their individual needs.it may lead to wasted ressources and expensive bills.
+:
+
+:exclamation:
+
+:question: Why not just run multiple programs in a single (Docker) container?
+
+![pod_container](assets/README-fb157.png)
 ![pod_container](assets/README-f380a4dd.png)
 
 https://medium.com/faun/the-first-introduction-to-kubernetes-62d26f99caff
