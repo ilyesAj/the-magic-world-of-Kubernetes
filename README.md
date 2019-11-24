@@ -60,7 +60,9 @@ Kubernetes is based on the following *design ideals*:
 # Kubernetes Architecture
 We can define Kubernetes cluster with 5 main components :
 ![main architecture](assets/README-9c8cf.png)
-- **Container**: A container is a standard unit of software that packages up an application with all its dependencies so that the application runs quickly and reliably from one container to another . benefits of containers (https://cloud.google.com/containers/)
+- **Container**: A container is a standard unit of software that packages up an application with all its dependencies so that the application runs quickly and reliably from one container to another .
+`Containers don't make microservices,Containers change the level of encapsulation, of isolation from a virtual machine to a process`
+benefits of containers (https://cloud.google.com/containers/)
 - **Pod** : smallest component in a kubernetes cluster . it contains one or more containers and unique IP Address (Container of containers)
 - **Node**: Known also as Minion is a Virtual or physical machine that contain all the necessary services to run pods (Container runtime, kubelet, kube-proxy).they are managed by the master (Pods Manager :oncoming_police_car:)
 - **master (Cluster control plane)** : This is the Boss :fire: this component is a responsible for exposing the (API), scheduling the deployment and managing all the components of the cluster .
