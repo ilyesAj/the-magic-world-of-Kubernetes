@@ -36,7 +36,7 @@ it amy lead to duplicated code BUT the cost of duplicating a bit of code is a lo
 
   :question: is it cheaper than classic approach ? : it depends , Car analogy :
   ![cheaper ?](assets/README-9c5ab.png)
-
+- **Namespace**: an abstraction used in k8s to support multiple virtual clusters on the same physical cluster.
 # The right Definition of Kubernetes
 
 > We can't work on a technology if we can't clearly define it  !
@@ -81,16 +81,48 @@ Pods model is defined as application specific "logical host", it means that a po
 :exclamation:Pods are scaled up and down as a unit, all containers in a pod must scale together regardless their individual needs.it may lead to wasted ressources and expensive bills.
 :
 
-:exclamation:
-
 :question: Why not just run multiple programs in a single (Docker) container?
-
+Using pods enhances transparency,decoupling software dependencies,ease to use and efficiency.
 ![pod_container](assets/README-fb157.png)
 ![pod_container](assets/README-f380a4dd.png)
 
 https://medium.com/faun/the-first-introduction-to-kubernetes-62d26f99caff
+## Services
+A service is an abstraction which defines a logical set of pods and a policy by which to access them  
+Services are persistant objects used to reference ephemeral ressources.
+for ensuring this persistance we can define :
+  - static cluster IP
+  - Static namespaced
+  - DNS Name
+We can define labels and selectors to
+### Use case (frontend-backend)
+if we have 3 replicas of our backend .3 pods -> 3 diffrent Ip address .which one we will choose to connect it to the frontend pod . In this case we can define a service which points on our 3 replicas and then poiints the frontend on the service .
+### Types of services :
+Every type of services is built in on top of another .
+- **clusterIP** (default) service **only accepts** traffic from within the cluster.
+![clusterIP](assets/README-14ebc.png)
+
+- **nodePort**: service allows external traffic to be routed to the pods on a specific port you'll be able to contact pods via `<NodeIP>:<NodePort>`
+Port can be mapped ether statically defined or dynamically defined (taken from a specific range defined by `--service-node-port-range` flag)
+![nodeport](assets/README-7c4f2.png)
+
+- **loadbalancer**: exposes the service externally using a cloud provider's load balancer.LoadBalancer services extend NodePort
+
+- **ExternalName**: Maps the Service to the contents of the externalName field (e.g. foo.bar.example.com), by returning a CNAME record. (CoreDNS 1.7 or higher is needed to use this ype)
+
+📓Note : For exposing service to external traffic we usually use **ingress** as an entry point to the cluster .it lets you consolidate your routing rules into a single resource as it **can expose multiple services under the same IP**.
+
+Todo: Selectors / Labels
+
 ## Node
+The Kubernetes node has the necessary tools  to run application containers and be managed from the master systems.it's most likely a VM or physical machine .
 ![node archi](assets/README-d5a15.png)
+
+- Kubelet:
+- Container runtime:
+- Kube Proxy :
+
+
 ## Master
 ![master archi](assets/README-ec8ab.png)
 # Cluster networking Basics
@@ -98,6 +130,22 @@ https://medium.com/faun/the-first-introduction-to-kubernetes-62d26f99caff
 - pod-to-pod communications
 - pod-to-service communications
 - external-to-servioe communications
+## services
+### Cluster IP Service
+
+we define a service with 10.0.165.39
+1- A Pod in host www-2 try to reach other pods, he will point out on the service ip address directly . Technically  the request hits host Iptables and it load-balances the connection between endpoints residing on the other pods. **Kubeproxy is responsible for updating iptables when a change occurs on the service (scaling up & sacaling down).**
+![ClusterIP networking](assets/README-c7535.png)
+### nodePort Service
+user can hit any host on nodeport IP and get to service even from external source
+![nodePort networking](assets/README-84e12.png)
+### LoadBalancer Service
+works with an external system to map a cluster external IP (provide cloud provider ) to the exposed port.
+
+Traffic from the external load balancer is directed at the backend Pods. **The cloud provider decides how it is load balanced.**
+
+![LoadBalancer service](assets/README-84372.png)
+
 # references
 - https://www.bizety.com/2018/08/21/stateful-vs-stateless-architecture-overview/
 - https://github.com/tkssharma/k8s-learning
