@@ -4,6 +4,11 @@ One year study on kubernetes subject
 # Terminology
 - **bridge networks** : a link layer that forwards traffic between network segments . For docker , a bridge network allows containers connected to the same bridge to communicate while providing isolation from containers which are not connected to that bridge network.
 - **NAT**: Network address Translation : NAT translates the IP addresses of computers in a local network in a single IP ADDRESS
+- **egress traffic**:  traffic that exits an entity or a network
+- **ingress traffic** : enters the boundary of a network
+- **IPVS** : (IP Virtual Server) is built on top of the Netfilter and implements transport-layer load balancing as part of the Linux kernel.
+
+
 - **RBAC**: (Role-Based Access Control) is an approch to restricting system access to authorized users .RBAC lets a user have access rights only to the information they need to .
 - **stateless applications**: runs one function or service and does not require a persistant storage to work . all dataflow passed via a stateless service is typically transitory and the state is stored only in a separate a third-party back-end service like a database .Any associated storage is typically ephemeral. it ensures scalability and portability of the application .
 - **stateful applications** : are typically databases .those applications processes requests based on the information relayed with each request and information stored from earlier requests .As a result , a stateful application must hold onto state information generated during the processing of the earlier request. [if you wonder how we can maintain state information ? ]( https://www.bizety.com/2018/08/21/stateful-vs-stateless-architecture-overview/)
@@ -36,7 +41,12 @@ it amy lead to duplicated code BUT the cost of duplicating a bit of code is a lo
 
   :question: is it cheaper than classic approach ? : it depends , Car analogy :
   ![cheaper ?](assets/README-9c5ab.png)
+
+  - **Multitenancy architecture** is an architecture in which a single instance of a software application serves multiple customers.Each customer is called a tenant. Tenants may be given the ability to customize some parts of the application, such as color of the user interface (UI) or business rules, but they cannot customize the application's code.
+  ![Tenancy](assets/README-fa612.png)
+
 - **Namespace**: an abstraction used in k8s to support multiple virtual clusters on the same physical cluster.
+
 # The right Definition of Kubernetes
 
 > We can't work on a technology if we can't clearly define it  !
@@ -71,7 +81,7 @@ In the next section we will go into the details of each component:
 ## Container
 I suppose that you have minimum requirement on this subject to work on kubernetes
 ## pod
-The smallest "unit of work " of kubernetes considered as **Ephemral**. Pods are one or more containers that share a network, namespace, and part of a single context.
+The smallest "unit of work " of kubernetes considered as **ephemeral**. Pods are one or more containers that share a network, namespace, and part of a single context.
 a shared pod's context is a set of linux namespaces, cgroups  ...
 
 containers within same pod share an IP address and port space they can find each other via localhost and can communicate with each other via staandard inter-process communication like POSIX ..
@@ -89,7 +99,7 @@ Using pods enhances transparency,decoupling software dependencies,ease to use an
 https://medium.com/faun/the-first-introduction-to-kubernetes-62d26f99caff
 ## Services
 A service is an abstraction which defines a logical set of pods and a policy by which to access them  
-Services are persistant objects used to reference ephemeral ressources.
+Services are **persistant** objects used to reference ephemeral ressources.
 for ensuring this persistance we can define :
   - static cluster IP
   - Static namespaced
@@ -112,15 +122,16 @@ Port can be mapped ether statically defined or dynamically defined (taken from a
 
 📓Note : For exposing service to external traffic we usually use **ingress** as an entry point to the cluster .it lets you consolidate your routing rules into a single resource as it **can expose multiple services under the same IP**.
 
-Todo: Selectors / Labels
-
+Todo: Selectors / Labels and namespaces
+https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 ## Node
 The Kubernetes node has the necessary tools  to run application containers and be managed from the master systems.it's most likely a VM or physical machine .
 ![node archi](assets/README-d5a15.png)
-
-- Kubelet:
-- Container runtime:
-- Kube Proxy :
+![node archi2](assets/README-9dc7f.png)
+### node component
+- Kubelet: :vertical_traffic_light: :blue_heart: the most important controller in k8s .it's the primary implementer of the pod and node APIs that drive the container execution layer .kubelet is required on every host in the k8s cluster (even in the master .)he's always whatching kube-apiserver for any change (ensures that the containers described in those PodSpecs are running and healthy) . in addition, we can communicate to kubelet via HTTP endpoint, HTTP server or file
+- Container runtime: is typically docker , used to manage containers in the node
+- Kube-Proxy :  the network "plumber " for kubernetes services (manages the network rules in each node). enables in-cluster load-balacing and service discovery . three modes are available (ipvs, iptables)  
 
 
 ## Master
@@ -134,19 +145,22 @@ The Kubernetes node has the necessary tools  to run application containers and b
 ### Cluster IP Service
 
 we define a service with 10.0.165.39
-1- A Pod in host www-2 try to reach other pods, he will point out on the service ip address directly . Technically  the request hits host Iptables and it load-balances the connection between endpoints residing on the other pods. **Kubeproxy is responsible for updating iptables when a change occurs on the service (scaling up & sacaling down).**
-![ClusterIP networking](assets/README-c7535.png)
+1- A Pod in host C try to reach other pods, he will point out on the service ip address directly . Technically  the request hits host Iptables and it load-balances the connection between endpoints residing on the other hosts A and B. **Kubeproxy is responsible for updating iptables when a change occurs on the service (scaling up & sacaling down).**
+
+![ClusterIP networking](assets/README-b2c49.png)
 ### nodePort Service
 user can hit any host on nodeport IP and get to service even from external source
-![nodePort networking](assets/README-84e12.png)
+![nodePort networking](assets/README-03aa2.png)
 ### LoadBalancer Service
 works with an external system to map a cluster external IP (provide cloud provider ) to the exposed port.
 
 Traffic from the external load balancer is directed at the backend Pods. **The cloud provider decides how it is load balanced.**
 
-![LoadBalancer service](assets/README-84372.png)
+![LoadBalancer service](assets/README-2f990.png)
 
-# references
+>IPVS is introduced in k8s v1.11 but begin to be popular from 1.6 version (with the support of 5000 nodes). IPVS is more performant and opens the door to a wider feature set (port ranges, better lb rules etc) . Iptables is actually a bottle neck to scale clusters up to 5000 nodes.
+
+# References
 - https://www.bizety.com/2018/08/21/stateful-vs-stateless-architecture-overview/
 - https://github.com/tkssharma/k8s-learning
 - https://medium.com/tkssharma/kubernetes-architecture-quick-introduction-4ade0bd250d3
