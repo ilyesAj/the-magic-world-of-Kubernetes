@@ -80,6 +80,11 @@ benefits of containers (https://cloud.google.com/containers/)
 In the next section we will go into the details of each component:
 ## Container
 I suppose that you have minimum requirement on this subject to work on kubernetes
+### Container states
+Once Pod is assigned to node by scheduler, kubelet starts creating containers using container runtime .
+- Waiting : (default state) a container in this state is most likely doing its required operations like pulling images, applying secrets ..
+- Running: :ok_hand: all good (postStart hook executed)
+- Terminated : A container in this state is either successfully completed his duty OR failed for some reason .(preStop hook executed)
 ## pod
 The smallest "unit of work " of kubernetes considered as **ephemeral**. Pods are one or more containers that share a network, namespace, and part of a single context.
 a shared pod's context is a set of linux namespaces, cgroups  ...
@@ -96,7 +101,15 @@ Using pods enhances transparency,decoupling software dependencies,ease to use an
 ![pod_container](assets/README-fb157.png)
 ![pod_container](assets/README-f380a4dd.png)
 
+### Pod status
+- Pending : pod accepted by k8s system but one or more container has not been created
+- Running :ok_hand: the pod is linked to a node, and all containers have been created. At least one Container is still running, OR is in the process of starting or restaring.
+- Succeeded: All Containers in the Pod have terminated in success, and will not be restarted.
+- Failed: All containers in the pod have terminated in success, and will not be restarted.
+- Unknown: the state of the pod could not be obtained, typically due to an error in communicating withe host.
+
 https://medium.com/faun/the-first-introduction-to-kubernetes-62d26f99caff
+
 ## Services
 A service is an abstraction which defines a logical set of pods and a policy by which to access them  
 Services are **persistant** objects used to reference ephemeral ressources.
@@ -116,7 +129,7 @@ Every type of services is built in on top of another .
 Port can be mapped ether statically defined or dynamically defined (taken from a specific range defined by `--service-node-port-range` flag)
 ![nodeport](assets/README-7c4f2.png)
 
-- **loadbalancer**: exposes the service externally using a cloud provider's load balancer.LoadBalancer services extend NodePort
+- **Loadbalancer**: exposes the service externally using a cloud provider's load balancer.LoadBalancer services extend NodePort
 
 - **ExternalName**: Maps the Service to the contents of the externalName field (e.g. foo.bar.example.com), by returning a CNAME record. (CoreDNS 1.7 or higher is needed to use this ype)
 
@@ -129,9 +142,26 @@ The Kubernetes node has the necessary tools  to run application containers and b
 ![node archi](assets/README-d5a15.png)
 ![node archi2](assets/README-9dc7f.png)
 ### node component
-- Kubelet: :vertical_traffic_light: :blue_heart: the most important controller in k8s .it's the primary implementer of the pod and node APIs that drive the container execution layer .kubelet is required on every host in the k8s cluster (even in the master .)he's always whatching kube-apiserver for any change (ensures that the containers described in those PodSpecs are running and healthy) . in addition, we can communicate to kubelet via HTTP endpoint, HTTP server or file
-- Container runtime: is typically docker , used to manage containers in the node
-- Kube-Proxy :  the network "plumber " for kubernetes services (manages the network rules in each node). enables in-cluster load-balacing and service discovery . three modes are available (ipvs, iptables)  
+#### Kubelet: :vertical_traffic_light: :blue_heart:
+the most important controller in k8s .it's the primary implementer of the pod and node APIs that drive the container execution layer .kubelet is required on every host in the k8s cluster (even in the master .)he's always whatching kube-apiserver for any change (ensures that the containers described in those PodSpecs are running and healthy) . in addition, we can communicate to kubelet via HTTP endpoint, HTTP server or file.
+ :space_invader: to verify -> Kubelet monitor containers with hooks, pod's policy, podSpec ..
+
+#### Using Probes
+To enhance monitoring feature,The kubelet can optionally perform and react to three kinds of probes on running Containers.
+- Liveness probes : can be used to know when to restart a container , for example, Liveness probes could catch a deadlock : an application is running but unable to make progress . if the process in your container is **able to crash/become unhealthy on its own** whenever it encounters an issue , we don't need a liveness probe (pod's Restart policy can )  
+- Readiness probes : can be used to know when a container is ready to **start accepting traffic** . this probe is usually used when the container needs to work on loading large data, configuration files or migrations during starup.
+- Startup probes : used for containers with a slow start (exceeds default starttime `initialDelaySeconds + failureThreshold × periodSeconds`).this will avoid kubelet kill those containers before they are up and running.
+kubelet three mechanisms for implementing those probes :
+
+1) running a command inside a container
+2) making an HTTP request against a container
+3) opening a TCP socket against a container.
+
+Probes are very powerfull tools to monitors containers but also very confusing if these probes are not carefully implemented . refer to : https://blog.colinbreck.com/kubernetes-liveness-and-readiness-probes-how-to-avoid-shooting-yourself-in-the-foot/
+#### Container runtime:
+is typically docker , used to manage containers in the node
+#### kube-Proxy :
+the network "plumber " for kubernetes services (manages the network rules in each node). enables in-cluster load-balacing and service discovery . three modes are available (ipvs, iptables)  
 
 
 ## Master
@@ -158,7 +188,7 @@ Traffic from the external load balancer is directed at the backend Pods. **The c
 
 ![LoadBalancer service](assets/README-2f990.png)
 
->IPVS is introduced in k8s v1.11 but begin to be popular from 1.6 version (with the support of 5000 nodes). IPVS is more performant and opens the door to a wider feature set (port ranges, better lb rules etc) . Iptables is actually a bottle neck to scale clusters up to 5000 nodes.
+>IPVS is introduced in k8s v1.8 . IPVS is more performant and opens the door to a wider feature set (port ranges, better lb rules etc) . Iptables is actually a bottle neck to scale clusters up to 5000 nodes.
 
 # References
 - https://www.bizety.com/2018/08/21/stateful-vs-stateless-architecture-overview/
