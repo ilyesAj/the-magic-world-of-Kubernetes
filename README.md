@@ -200,8 +200,8 @@ is typically docker , used to manage containers in the node
 the network "plumber " for kubernetes services (manages the network rules in each node). enables in-cluster load-balancing and service discovery . three modes are available (IPvs, Iptables)  
 
 
-## Master (Cluster control plane component)
-
+## Master (Cluster control plane component) 🧠
+Master components provide the cluster's control plane. Master components are considered as the brain of the cluster: they make decisions , execute, scheduler then and monitors it. they also detect and respond to any cluster events . Master components can be run on any machine in the cluster to ensure HA cluster with multi-master VM setups. 
 ![master archi](assets/README-ec8ab.png)
 ### Kube-APIserver
 ### Etcd
