@@ -15,7 +15,7 @@ One year study on kubernetes subject
 
  the basic idea is like electrical circuit breaker : when the number of **consecutive failures** crosses a threshold, the **circuit breaker trips**, and for the duration of a timeout period all temps to invoke the remote **service will fail immediately**
  ![circuit breaker](assets/README-161b7.png)
-
+- **Idempotent operation** : is an operation with no additional effect if it is called more than once with the same input parameters. In mathematics , an idempotent operation is one where `f(f(x))=f(x)`
 - **RBAC**: (Role-Based Access Control) is an approch to restricting system access to authorized users .RBAC lets a user have access rights only to the information they need to .
 
 - **stateless applications**: runs one function or service and does not require a persistant storage to work . all dataflow passed via a stateless service is typically transitory and the state is stored only in a separate a third-party back-end service like a database .Any associated storage is typically ephemeral. it ensures scalability and portability of the application .
@@ -34,6 +34,18 @@ common layers are :
   - (optional but important) Infrastructure Layer (aka persistant layer ) :enables our application to interact with external systems by receiving, storing and providing data when requested. this optional layer will make our application loosely coupled from the technology used .
 - **Three-tier architecture**: based on multi-layered architecture and composed from three main layers : presentation tier were the UI is exposed, application tier where all processing is done and data layer where all data is exchanged and stored .
 ![3-tier architecture](assets/README-d42de.png)
+- **Cattle, not pets approch**: Pets are servers that are treated as indispensable or unique systems that can never be down.Cattle are arrays of more than two servers that are built using automated tools and are designed for failure where **no one is irreplaceable**.
+- **Serialization/Deserialization**:serialization is the convertion of **an object to a series of bytes**, so that the object can **easily saved** to persistent storage or streamed across a communication link .the byte stream can then be deserialized means converted into a replica of the original object.( Most used are JSON and google protocol buffers)
+- **Race condition**:In multi-threading application , a race condition occurs when two or more threads can access shared data and they try to change it at the same time .
+- **8 Fallacies of distributed systems**: Fallacies are a mistaken belief based on unsound arguments .
+    - **The network is reliable** : Calls over network will fail due to congestion or hardware failure for example ...
+    - **Latency is zero** : Calls over network are not instant . always separate In memory calls and networks calls. Always bring back all the data you might need and not work with chatty mode. Store what can be stored locally.
+    - **Bandwidth is infinite** : Bandwidth is limited. use Domain-Driven Design patterns to limit the impact.You should transfer less data to minimize bandwidth usage. You need to balance these two forces and find the right amount of data to send over the wire.
+    - **The network is secure** : no it's not . Even you harden security on your own code and your communications , pay attention on using open source libraries, third party legacy systems... An openSSL vulnerability allowed people to steal data protected by SSL/TLS.
+    - **Topology doesn’t change** : Network topology changes all the time . Abstract physical structure of the network ( no hardcoding IPs,Dns and service discovery ..) , and adopt Cattle, not pets approch .
+    - **There is one administrator** : no one knows everthing . On a distributed systems, many persons are envolved in the application .If something went wrong, every one must be responsible and tries to solve the problem .Logging , monitoring, decoupling applications and isolating 3rd party dependencies are essential keys for good administration.
+    - **Transport cost is zero** : Related to fallacity of zero-latency , Zero cost transport fallacity is related to cost and ressource consumption . Transport cost can be either from the cost of the networking infrastructure (On prem instances, Network switchers , SAN ...) or serialization/deserialization (CPU consumption, time cost ..).For infra we can't reduce this cost but for serialization/deserialization it can be redesigned more efficiently by using JSON or Google’s Protocol Buffers and replacing old systems like SOAP or XML.
+    - **The network is homogeneous** :A homogeneous network is a network where all components have the same config and the same communication protocol. all networks in the world is not homogenous so we have to standardize formats in order to avoid vendor lock-in.
 - **Sidecar design pattern** allows you to add a number of capabilities to your application without additional configuration code for third-party components.As a sidecar is attached to a motorcycle, similarly in software architecture a sidecar is attached to a parent application and extends/enhances its functionalities. A sidecar is loosely coupled with the main application.**if a sidecar is detached the main functionality will still do her main goal**
 -  **Microservices**: microservice architecture theory : 'Small autonomous services modeled around a business domain that work together.' by sam newman . amicroservice architecture is an architectural style that sy=tructures an application as a collection of services that are :
   - **Loosely coupled** : each component of the system has or make use of little or no knowledge of the the components of the system
@@ -63,7 +75,10 @@ common layers are :
   ![Tenancy](assets/README-fa612.png)
 
 - **Namespace**: an abstraction used in k8s to support multiple virtual clusters on the same physical cluster.
-
+- **Kops**: tool to deploy a production grade kubernetes cluster .
+- **Service mesh**: A service mesh is a way to control how different parts of an application
+- **share data with one another**. Unlike other systems for managing this communication, a service mesh is a dedicated infrastructure layer built right into an app. This visible infrastructure layer can document how well (or not) different parts of an app interact, so it becomes easier to optimize communication and avoid downtime as an app grows.
+- **Production Ready K8s**:https://www.weave.works/blog/what-does-production-ready-really-mean-for-a-kubernetes-cluster
 # The right Definition of Kubernetes
 
 > We can't work on a technology if we can't clearly define it  !
