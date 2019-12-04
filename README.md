@@ -245,3 +245,4 @@ https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 - https://github.com/tkssharma/k8s-learning
 - https://medium.com/tkssharma/kubernetes-architecture-quick-introduction-4ade0bd250d3
 - https://github.com/kubernetes/community/blob/master/contributors/design-proposals/architecture/architecture.md
+- https://www.simpleorientedarchitecture.com/8-fallacies-of-distributed-systems/
