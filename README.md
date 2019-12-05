@@ -77,9 +77,14 @@ common layers are :
 
 - **Namespace**: an abstraction used in k8s to support multiple virtual clusters on the same physical cluster.
 - **Kops**: tool to deploy a production grade kubernetes cluster .
-- **Service mesh**: A service mesh is a way to control how different parts of an application
-- **share data with one another**. Unlike other systems for managing this communication, a service mesh is a dedicated infrastructure layer built right into an app. This visible infrastructure layer can document how well (or not) different parts of an app interact, so it becomes easier to optimize communication and avoid downtime as an app grows.
+- **Service mesh**: A service mesh is a way to control how different parts of an application **share data with one another**. Unlike other systems for managing this communication, a service mesh is a dedicated infrastructure layer built right into an app. This visible infrastructure layer can document how well (or not) different parts of an app interact, so it becomes easier to optimize communication and avoid downtime as an app grows.
 - **Production Ready K8s**:https://www.weave.works/blog/what-does-production-ready-really-mean-for-a-kubernetes-cluster
+- **Consensus algorithms**:is algorithms used to achieve agreement on a single data value among distributed processes or systems. the main goal of those algorithms is to achieve network reliability (trustworthy) involving multiple unreliable nodes.As a result Consensus algorithms must be **fault tolerent**.Applications of consensus algorithms include:
+  - Deciding whether to commit a distributed transaction to a database.
+  - Designating node as a leader for some distributed task.
+  - Synchronizing state machine replicas and ensuring consistency among them.
+
+- **Qorum**:is the minimum number of votes that a distributed transaction has to obtain in order to be allowed to perform an operation in a distributed system
 # The right Definition of Kubernetes
 
 > We can't work on a technology if we can't clearly define it  !
@@ -112,6 +117,26 @@ benefits of containers (https://cloud.google.com/containers/)
 - **master (Cluster control plane)** : This is the Boss :fire: this component is a responsible for exposing the (API), scheduling the deployment and managing all the components of the cluster .
 
 In the next section we will go into the details of each component:
+## Master (Cluster control plane component) 🧠
+Master components provide the cluster's control plane. Master components are considered as the brain of the cluster: they make decisions , execute, scheduler then and monitors it. they also detect and respond to any cluster events . Master components can be run on any machine in the cluster to ensure HA cluster with multi-master VM setups.
+![master archi commercial](assets/README-ec8ab.png)
+![master archi technical](assets/README-ee59c.png)
+### Master component
+#### Kube-APIserver
+kubernetes API server is the central unit for managing all the cluster . ALL Components interact with each other through the API . Kube-Apiserver acts also like a gatekeeper :door: by handling authentication and authorization, request validation, mutation and admission control .Also this is the only component that communicates with the etcd cluster (for security reasons), making sure data is stored in etcd and is in agreement with the service details of the deployed pods .
+#### Etcd
+etcd is a consistent and highly-available key value store used as Kubernetes’ backing store for all cluster data(like objects and config information).
+the main focus of etcd is :
+  - Simple: well-defined, user-facing API (gRPC)
+  - Secure: automatic TLS with optional client cert authentication
+  - Fast: benchmarked 10,000 writes/sec
+  - Reliable: properly distributed using [Raft distributed algorithm](http://thesecretlivesofdata.com/raft/)
+#### Kube-Controller-Manager
+
+#### Kube-Scheduler
+
+
+
 ## Container
 I suppose that you have minimum requirement on this subject to work on kubernetes
 ### Container states
@@ -200,13 +225,7 @@ is typically docker , used to manage containers in the node
 the network "plumber " for kubernetes services (manages the network rules in each node). enables in-cluster load-balancing and service discovery . three modes are available (IPvs, Iptables)  
 
 
-## Master (Cluster control plane component) 🧠
-Master components provide the cluster's control plane. Master components are considered as the brain of the cluster: they make decisions , execute, scheduler then and monitors it. they also detect and respond to any cluster events . Master components can be run on any machine in the cluster to ensure HA cluster with multi-master VM setups. 
-![master archi](assets/README-ec8ab.png)
-### Kube-APIserver
-### Etcd
-### Kube-Controller-Manager
-### Kube-Scheduler
+
 
 # Cluster networking Basics
 - Container-to-Container communications:
