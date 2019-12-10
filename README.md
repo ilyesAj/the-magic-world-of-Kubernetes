@@ -1,8 +1,11 @@
 # the-magic-world-of-Kubernetes
 One year study on kubernetes subject
-
 # Terminology
 - **bridge networks** : a link layer that forwards traffic between network segments . For docker , a bridge network allows containers connected to the same bridge to communicate while providing isolation from containers which are not connected to that bridge network.
+- **API aggregator**: is an API on top of several APIs.it provides a single point of implementation and delivers a unique and standardized API regardless of what APIs or services it integrates with.
+- **Data locality** means moving computation rather than moving data to save the bandwidth.
+
+This minimizes network congestion and increases the overall throughput of the system.
 - **NAT**: Network address Translation : NAT translates the IP addresses of computers in a local network in a single IP ADDRESS
 - **egress traffic**:  traffic that exits an entity or a network
 - **ingress traffic** : enters the boundary of a network
@@ -131,12 +134,46 @@ the main focus of etcd is :
   - Secure: automatic TLS with optional client cert authentication
   - Fast: benchmarked 10,000 writes/sec
   - Reliable: properly distributed using [Raft distributed algorithm](http://thesecretlivesofdata.com/raft/)
+
 #### Kube-Controller-Manager
+Acts like a primary daemon that manages all core components of the cluster. It also monitors the state of the cluster via Apiserver and **steers the cluster towards the desired state.**
+
+:exclamation:the kube controller manager **does NOT handle scheduling**, his job is to decide whether add, remove pods for exemple and sends the request to the APIserver.
+Controllers includes :
+- Node controller: Responsible for noticing and responding when nodes go down
+- Replication Controller : Responsible for maintaining the correct number of pods for every replication controller object in the system.
+- Endpoints Controller : populates the endpoint object (Automatically joins services & pods )
+- Service Account & Token Controllers : Create default accounts and API access tokens for new namespaces
 
 #### Kube-Scheduler
+scheduler decides **which nodes should run which pods**, updates pod with a node assignment, nodes poll checking which pods have their matching assignment and takes in consideration various criteria like:
+- General hardware requirements
+- affinity/anti-affinity
+- labels, and other various custom resource requirements.
+The Kubernetes scheduler is a policy-rich, topology-aware, workload-specific function that significantly **impacts availability, performance, and capacity.workload**
 
+➕ we can run multiple schedulers in the same cluster example : kube-batch  
 
+#### Optional services
+##### Cloud-controller manager
+Is a daemon that provides a cloud-provider specific knowledge and integration capability into the control loop of kubernetes . It mainly runs specific controllers that interacts with the cloud provider .those control loops MUST be disabled in the kube-controller-manager.
+Controllers includes :
+  - Node controller : Checking the cloud provider to determine if a node has been deleted in the cloud after it stops responding
+  - Route controller : For setting up routes in the underlying cloud infrastructure
+  - Service controller: For creating,updating and deleting cloud provider load balancers
+  - Volume controller : For creating, attaching, and mounting volumes and interacting with the cloud provider to orchestrate volumes.
 
+##### Cluster DNS
+CoreDNS is a general-purpose authoritative DNS server that can serve as cluster DNS, complying with the dns specifications. CoreDNS is the recommended DNS Server, replacing kube-dns. However, kube-dns may still be installed by default with certain Kubernetes installer tools.
+these are some differences :
+  - CoreDNS is a single container per instance, vs kube-dns which uses three.
+  - Kube-dns uses dnsmasq for caching, which is single threaded C. CoreDNS is multi-threaded Go.
+  - CoreDNS enables negative caching in the default deployment. Kube-dns does not.
+> to verify
+> Even when you install coreDNS, you will always have kube-dns running because it's somthing that the application depends on it's by design.if you check kube-dns service points on coreDNS pods
+
+##### Kube dashboard
+general purpose web front end for the Kubernetes Cluster.
 ## Container
 I suppose that you have minimum requirement on this subject to work on kubernetes
 ### Container states
