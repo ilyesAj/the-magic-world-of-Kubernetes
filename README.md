@@ -77,6 +77,8 @@ common layers are :
 
 - **Namespace**: an abstraction used in k8s to support multiple virtual clusters on the same physical cluster.
 - **Kops**: tool to deploy a production grade kubernetes cluster .
+- **Velero**: tool to backup and restore k8s cluster resources and persistent volumes.
+- **longhorn**: distributed block storage used to backup volumes to secondary storage (NFS or s3-compatible object storage ) and incremental snapshot of block storage.
 - **Service mesh**: A service mesh is a way to control how different parts of an application **share data with one another**. Unlike other systems for managing this communication, a service mesh is a dedicated infrastructure layer built right into an app. This visible infrastructure layer can document how well (or not) different parts of an app interact, so it becomes easier to optimize communication and avoid downtime as an app grows.
 - **Production Ready K8s**:https://www.weave.works/blog/what-does-production-ready-really-mean-for-a-kubernetes-cluster
 - **Consensus algorithms**:is algorithms used to achieve agreement on a single data value among distributed processes or systems. the main goal of those algorithms is to achieve network reliability (trustworthy) involving multiple unreliable nodes.As a result Consensus algorithms must be **fault tolerent**.Applications of consensus algorithms include:
