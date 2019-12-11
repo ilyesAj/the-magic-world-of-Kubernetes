@@ -5,3 +5,6 @@
 - External-to-service communications
 
 https://kubernetes.io/docs/concepts/services-networking/ingress/
+# Proxies :oncoming_police_car: :bus: :ambulance:
+
+https://kubernetes.io/docs/concepts/cluster-administration/proxies/

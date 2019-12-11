@@ -33,14 +33,14 @@ We can define Kubernetes cluster with 5 main components :
 benefits of containers (https://cloud.google.com/containers/)
 - **Pod** : smallest component in a kubernetes cluster . it contains one or more containers and unique IP Address (Container of containers)
 - **Node**: Known also as Minion is a Virtual or physical machine that contain all the necessary services to run pods (Container runtime, kubelet, kube-proxy).they are managed by the master (Pods Manager :oncoming_police_car:)
-- **master (Cluster control plane)** : This is the Boss :fire: this component is a responsible for exposing the (API), scheduling the deployment and managing all the components of the cluster .
+- **Master (Cluster control plane)** : This is the Boss :fire: this component is a responsible for exposing the (API), scheduling the deployment and managing all the components of the cluster .
 
 In the next section we will go into the details of each component:
 ## Master (Cluster control plane component) 🧠
 Master components provide the cluster's control plane. Master components are considered as the brain of the cluster: they make decisions , execute, scheduler then and monitors it. they also detect and respond to any cluster events . Master components can be run on any machine in the cluster to ensure HA cluster with multi-master VM setups.
 ![master archi commercial](assets/README-ec8ab.png)
 ![master archi technical](assets/README-ee59c.png)
-### Master component
+### Master Components
 #### Kube-APIserver
 kubernetes API server is the central unit for managing all the cluster . ALL Components interact with each other through the API . Kube-Apiserver acts also like a gatekeeper :door: by handling authentication and authorization, request validation, mutation and admission control .Also this is the only component that communicates with the etcd cluster (for security reasons), making sure data is stored in etcd and is in agreement with the service details of the deployed pods .
 #### Etcd
@@ -70,16 +70,22 @@ The Kubernetes scheduler is a policy-rich, topology-aware, workload-specific fun
 
 ➕ we can run multiple schedulers in the same cluster example : kube-batch  
 
-#### Optional services
-##### Cloud-controller manager
-Is a daemon that provides a cloud-provider specific knowledge and integration capability into the control loop of kubernetes . It mainly runs specific controllers that interacts with the cloud provider .those control loops MUST be disabled in the kube-controller-manager.
+### Optional Services
+#### Cloud-Controller Manager
+the main idea behin the cloud controller manager is to have a single point of integration with the cloud
+Here’s the architecture of a Kubernetes cluster without the cloud controller manager:
+![kubernetes without cloud controller manager](assets/README-e2981.png)
+
+the new architecture with the cloud-controller manager would be :
+![k8s cluster with CCM](assets/README-fd111.png)
+Cloud-controller manager acts like a daemon that provides a cloud-provider specific knowledge and integration capability into the control loop of kubernetes . It mainly runs specific controllers that interacts with the cloud provider .those control loops MUST be disabled in the kube-controller-manager.
 Controllers includes :
   - Node controller : Checking the cloud provider to determine if a node has been deleted in the cloud after it stops responding
   - Route controller : For setting up routes in the underlying cloud infrastructure
   - Service controller: For creating,updating and deleting cloud provider load balancers
   - Volume controller : For creating, attaching, and mounting volumes and interacting with the cloud provider to orchestrate volumes.
 
-##### Cluster DNS
+#### Cluster DNS
 CoreDNS is a general-purpose authoritative DNS server that can serve as cluster DNS, complying with the dns specifications. CoreDNS is the recommended DNS Server, replacing kube-dns. However, kube-dns may still be installed by default with certain Kubernetes installer tools.
 these are some differences :
   - CoreDNS is a single container per instance, vs kube-dns which uses three.
@@ -88,14 +94,100 @@ these are some differences :
 > to verify
 > Even when you install coreDNS, you will always have kube-dns running because it's somthing that the application depends on it's by design.if you check kube-dns service points on coreDNS pods
 
-##### Kube dashboard
+#### Kube Dashboard
 
 general purpose web front end for the Kubernetes Cluster.
+
+## Node
+The Kubernetes node has the necessary tools  to run application containers and be managed from the master systems.it's most likely a VM or physical machine .
+![node archi](assets/README-d5a15.png)
+![node archi2](assets/README-9dc7f.png)
+### Node Component
+#### Kubelet: :vertical_traffic_light: :blue_heart:
+the most important controller in k8s .it's the primary implementer of the pod and node APIs that drive the container execution layer .kubelet is required on every host in the k8s cluster (even in the master .)he's always watching kube-apiserver for any change (ensures that the containers described in those PodSpecs are running and healthy) . in addition, we can communicate to kubelet via HTTP endpoint, HTTP server or file.
+
+ :space_invader: to verify -> Kubelet monitor containers with hooks, pod's policy, podSpec ..
+
+#### Container Runtime:
+
+ is typically docker , used to manage containers in the node
+
+#### Kube-Proxy :
+
+ the network "plumber " for kubernetes services (manages the network rules in each node) ,his main job is to proxy UDP, TCP, and SCTP packets (it doesn’t understand HTTP). It maintains the network rules on the host and handles transmission of packets between pods, the host, and the outside world.He also enables in-cluster load-balancing and service discovery . Two modes are available (IPvs, IPtables).
+ <!--
+ Refer to network /kube-proxy
+ -->  
+
+
+#### cAdvisor (now integrated in kubelet)
+collects metrics about pods running on that particular node
+
+#### Using Probes
+To enhance monitoring feature,The kubelet can optionally perform and react to three kinds of probes on running Containers.
+- Liveness probes : can be used to know when to restart a container , for example, Liveness probes could catch a deadlock : an application is running but unable to make progress . if the process in your container is **able to crash/become unhealthy on its own** whenever it encounters an issue , we don't need a liveness probe (pod's Restart policy can )  
+- Readiness probes : can be used to know when a container is ready to **start accepting traffic** . this probe is usually used when the container needs to work on loading large data, configuration files or migrations during startup.
+- Startup probes : used for containers with a slow start (exceeds default start-time `initialDelaySeconds + failureThreshold × periodSeconds`).this will avoid kubelet kill those containers before they are up and running.
+kubelet three mechanisms for implementing those probes :
+
+1) running a command inside a container
+2) making an HTTP request against a container
+3) opening a TCP socket against a container.
+
+Probes are very powerful tools to monitors containers but also very confusing if these probes are not carefully implemented . refer to : https://blog.colinbreck.com/kubernetes-liveness-and-readiness-probes-how-to-avoid-shooting-yourself-in-the-foot/
+
+## Master-Node Communication
+All communications paths from the cluster to the master terminate at the Apiserver.
+
+![Inter communication Master-Node](assets/README-ac2c3.png)
+
+### Cluster ➡️ Master
+
+In a typical deployment, the APIserver is configured to listen for remote connections on a HTTPS (443) with **one or more forms of client authentication enabled** (client certificates, bearer tokens, an authenticating proxy, or HTTP basic auth). **One or more forms of authorization** should also ben enabled (Node, ABAC, RBAC, Webhook).
+
+**Nodes** should be **provisioned with the public root certificate** for the cluster such that they can connect securely to the APIserver along **with valid client credentials**.
+
+:cloud: Default GKE deployment uses Clients certificate authentication :the client credentials provided to the kubelet are in the form of a client certificate. With this type of authentication we can use Kubelet TLS bootstrapping.
+
+### Master ➡️ Cluster
+
+Two primary communication paths from the master (APIserver) to the cluster :
+
+#### APIserver -> Kubelet
+
+The connections from the apiserver to the Kubelet are used for:
+
+  - Fetching logs for pods
+  - Attaching (through kubectl) to running pods.
+  - Providing the kubelet's port-forwarding functionality.
+
+**By default, the apiserver does not verify the kubelet's serving certificate** which makes connection subject to man in the middle attack and unsafe to run over untrusted and/or public networks.
+Two possible solutions to this case :
+  - Provide the APIserver with the root certificate bundle to use to verify the kubelet's serving certificate (using `kubelet-certificate-authority`).
+  - (deprecated 🔫 ) SSH tunneling between the apiserver and kubelet.
+
+#### APIserver <-> Kube-Proxy
+
+kube-proxy watches the APIserver for pods/services changes in order to maintain the network up to date .
+
+#### Apiserver to nodes, pods, and services
+
+In this connection the Apiserver is used as a proxy to reach any node,pod, or service .
+
+the connections from the apiserver to a node,pod, or service **default to plain HTTP connections and therefore neither authenticated nor encrypted**.
+
+they can be run over a secure HTTPS connection by prefixing `https` to the node,pod, service name in the API URL, but they will NOT validate the certificate provided by the HTTPS endpoint nor provide client credentiels so while the connection will be encrypted, it will NOT provide any guarantees of integrity.
+
+:bangbang: These connections are not currently safe :skull: to ru over untrusted networks.
+<!---
+Refer to networking / APIserver proxy functionality section
+-->
+
 ## Container
 
 I suppose that you have minimum requirement on this subject to work on kubernetes
 
-### Container states
+### Container States
 Once Pod is assigned to node by scheduler, kubelet starts creating containers using container runtime .
 - Waiting : (default state) a container in this state is most likely doing its required operations like pulling images, applying secrets ..
 - Running: :ok_hand: all good (postStart hook executed)
@@ -120,7 +212,7 @@ Using pods enhances transparency,decoupling software dependencies,ease to use an
 ![pod_container](assets/README-fb157.png)
 ![pod_container](assets/README-f380a4dd.png)
 
-### Pod status
+### Pod Status
 - Pending : pod accepted by k8s system but one or more container has not been created
 - Running :ok_hand: the pod is linked to a node, and all containers have been created. At least one Container is still running, OR is in the process of starting or restarting.
 - Succeeded: All Containers in the Pod have terminated in success, and will not be restarted.
@@ -137,9 +229,9 @@ for ensuring this persistence we can define :
   - Static namespaced
   - DNS Name
 We can define labels and selectors to
-### Use case (frontend-backend)
+### Use Case (frontend-backend)
 if we have 3 replicas of our backend .3 pods -> 3 different Ip address .which one we will choose to connect it to the frontend pod . In this case we can define a service which points on our 3 replicas and then points the frontend on the service .
-### Types of services :
+### Types of Services :
 Every type of services is built in on top of another .
 - **ClusterIP** (default) service **only accepts** traffic from within the cluster.
 ![clusterIP](assets/README-14ebc.png)
@@ -156,37 +248,12 @@ Port can be mapped ether statically defined or dynamically defined (taken from a
 
 Todo: Selectors / Labels and namespaces
 https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
-## Node
-The Kubernetes node has the necessary tools  to run application containers and be managed from the master systems.it's most likely a VM or physical machine .
-![node archi](assets/README-d5a15.png)
-![node archi2](assets/README-9dc7f.png)
-### Node component
-#### Kubelet: :vertical_traffic_light: :blue_heart:
-the most important controller in k8s .it's the primary implementer of the pod and node APIs that drive the container execution layer .kubelet is required on every host in the k8s cluster (even in the master .)he's always watching kube-apiserver for any change (ensures that the containers described in those PodSpecs are running and healthy) . in addition, we can communicate to kubelet via HTTP endpoint, HTTP server or file.
 
- :space_invader: to verify -> Kubelet monitor containers with hooks, pod's policy, podSpec ..
-
-#### Using Probes
-To enhance monitoring feature,The kubelet can optionally perform and react to three kinds of probes on running Containers.
-- Liveness probes : can be used to know when to restart a container , for example, Liveness probes could catch a deadlock : an application is running but unable to make progress . if the process in your container is **able to crash/become unhealthy on its own** whenever it encounters an issue , we don't need a liveness probe (pod's Restart policy can )  
-- Readiness probes : can be used to know when a container is ready to **start accepting traffic** . this probe is usually used when the container needs to work on loading large data, configuration files or migrations during startup.
-- Startup probes : used for containers with a slow start (exceeds default start-time `initialDelaySeconds + failureThreshold × periodSeconds`).this will avoid kubelet kill those containers before they are up and running.
-kubelet three mechanisms for implementing those probes :
-
-1) running a command inside a container
-2) making an HTTP request against a container
-3) opening a TCP socket against a container.
-
-Probes are very powerful tools to monitors containers but also very confusing if these probes are not carefully implemented . refer to : https://blog.colinbreck.com/kubernetes-liveness-and-readiness-probes-how-to-avoid-shooting-yourself-in-the-foot/
-#### Container runtime:
-is typically docker , used to manage containers in the node
-#### Kube-Proxy :
-the network "plumber " for kubernetes services (manages the network rules in each node). enables in-cluster load-balancing and service discovery . three modes are available (IPvs, Iptables)  
 # Networking
 refer to `networking.md`
 
 
-# Core concepts
+# Core Concepts
 ## Services
 ### Cluster IP Service
 
@@ -194,7 +261,7 @@ we define a service with 10.0.165.39
 1- A Pod in host C try to reach other pods, he will point out on the service IP address directly . Technically  the request hits host Iptables and it load-balances the connection between endpoints residing on the other hosts A and B. **Kubeproxy is responsible for updating iptables when a change occurs on the service (scaling up & scaling down).**
 
 ![ClusterIP networking](assets/README-b2c49.png)
-### nodePort Service
+### NodePort Service
 user can hit any host on nodeport IP and get to service even from external source
 ![nodePort networking](assets/README-03aa2.png)
 ### LoadBalancer Service
@@ -214,6 +281,18 @@ change place ?
 https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 ## Selectors
 
+# API
+# Security
+https://kubernetes.io/docs/tasks/administer-cluster/securing-a-cluster/
+## TLS bootstrapping
+https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet-tls-bootstrapping/
+## Authentication
+https://kubernetes.io/docs/reference/access-authn-authz/authentication/
+## authorization
+### RBAC authorization
+https://kubernetes.io/docs/reference/access-authn-authz/rbac/
+# Storage
+https://kubernetes.io/docs/concepts/storage/persistent-volumes/
 # References
 - https://www.bizety.com/2018/08/21/stateful-vs-stateless-architecture-overview/
 - https://github.com/tkssharma/k8s-learning
