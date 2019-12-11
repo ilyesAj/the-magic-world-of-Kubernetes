@@ -114,7 +114,9 @@ the most important controller in k8s .it's the primary implementer of the pod an
 
 #### Kube-Proxy :
 
- the network "plumber " for kubernetes services (manages the network rules in each node) ,his main job is to proxy UDP, TCP, and SCTP packets (it doesn’t understand HTTP). It maintains the network rules on the host and handles transmission of packets between pods, the host, and the outside world.He also enables in-cluster load-balancing and service discovery . Two modes are available (IPvs, IPtables).
+ the network "plumber " for kubernetes services (manages the network rules in each node) ,his main job is to proxy UDP, TCP, and SCTP packets (it doesn’t understand HTTP). It maintains the network rules on the host and handles transmission of packets between pods, the host, and the outside world.
+
+ He also enables in-cluster load-balancing and service discovery . Two modes are available (IPvs, IPtables).
  <!--
  Refer to network /kube-proxy
  -->  
