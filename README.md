@@ -178,7 +178,7 @@ the connections from the apiserver to a node,pod, or service **default to plain 
 
 they can be run over a secure HTTPS connection by prefixing `https` to the node,pod, service name in the API URL, but they will NOT validate the certificate provided by the HTTPS endpoint nor provide client credentiels so while the connection will be encrypted, it will NOT provide any guarantees of integrity.
 
-:bangbang: These connections are not currently safe :skull: to ru over untrusted networks.
+:bangbang: These connections are not currently safe :skull: to run over untrusted networks.
 <!---
 Refer to networking / APIserver proxy functionality section
 -->
@@ -301,3 +301,4 @@ https://kubernetes.io/docs/concepts/storage/persistent-volumes/
 - https://www.simpleorientedarchitecture.com/8-fallacies-of-distributed-systems/
 - https://dzone.com/articles/the-rise-of-service-mesh-architecture?preview=true
 - https://dzone.com/articles/sidecar-design-pattern-in-your-microservices-ecosy-1
+- https://kubernetes.io/docs/concepts/architecture/master-node-communication/
