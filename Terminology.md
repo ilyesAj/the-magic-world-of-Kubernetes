@@ -4,6 +4,11 @@
 - **Netfilter** a framework provided by the linux kernel that allows customization of networking-related operations, such as packet filtering, NAT, port translation ..
 ![netfilter framework](assets/Terminology-19d32.png)
 - **IPVS** : (IP Virtual Server) is built on top of the Netfilter and implements transport-layer load balancing as part of the Linux kernel.
+- **Sticky session** :is a process in which a load balancer creates an affinity between a client and a specific network server for the duration of a session .
+the load balancer assigns an identifying attribute to a user, typically by issuing a cookie or by tracking their IP details. Then, according to the tracking ID, a load balancer can start routing all of the requests of this user to a specific server for the duration of the session.
+![sticky session](assets/Terminology-f15cc.png)
+- **SCTP (Stream Control Transmission Protocol)**: is a protocol for transmitting multiple streams of data at the same time between two end points that have established a connection in a network.
+![tcp vs udp vs sctp ](assets/Terminology-72248.png)
 - **API aggregator**: is an API on top of several APIs.it provides a single point of implementation and delivers a unique and standardized API regardless of what APIs or services it integrates with.
 - **Data locality** means moving computation rather than moving data to save the bandwidth.
 
