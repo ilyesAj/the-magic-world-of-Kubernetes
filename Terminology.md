@@ -1,6 +1,9 @@
 # Terminology
 
 - **bridge networks** : a link layer that forwards traffic between network segments . For docker , a bridge network allows containers connected to the same bridge to communicate while providing isolation from containers which are not connected to that bridge network.
+- **Netfilter** a framework provided by the linux kernel that allows customization of networking-related operations, such as packet filtering, NAT, port translation ..
+![netfilter framework](assets/Terminology-19d32.png)
+- **IPVS** : (IP Virtual Server) is built on top of the Netfilter and implements transport-layer load balancing as part of the Linux kernel.
 - **API aggregator**: is an API on top of several APIs.it provides a single point of implementation and delivers a unique and standardized API regardless of what APIs or services it integrates with.
 - **Data locality** means moving computation rather than moving data to save the bandwidth.
 
@@ -8,7 +11,7 @@ This minimizes network congestion and increases the overall throughput of the sy
 - **NAT**: Network address Translation : NAT translates the IP addresses of computers in a local network in a single IP ADDRESS
 - **egress traffic**:  traffic that exits an entity or a network
 - **ingress traffic** : enters the boundary of a network
-- **IPVS** : (IP Virtual Server) is built on top of the Netfilter and implements transport-layer load balancing as part of the Linux kernel.
+
 - **CRUD** : Create, read, update and delete
 - **Fault tolerance** Is the property that enables a system to continue operating properly even when some of its components fails.
 ![fault tolerance](assets/README-d97c1.png)

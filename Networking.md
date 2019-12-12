@@ -18,11 +18,20 @@ There are several different proxies you may encounter when using Kubernetes:
 - is just used to reach services /  pods load-balancing
 two modes are available for kube-proxy:
 ### IPtables
-iptables is a Linux kernel feature that was designed to be an efficient firewall with sufficient flexibility to handle a wide variety of common packet manipulation and filtering needs.  It allows flexible sequences of rules to be attached to various hooks in the kernel’s packet processing pipeline.
+iptables is a user-space application (no root needed) that allows configuring Linux kernel firewall(implemented on top of netfilter) by configuring chains and rules.
 
-In iptables mode, kube-proxy attaches rules to the “NAT pre-routing” hook to implement its NAT and load balancing functions. This works, it’s simple, it uses a mature kernel feature, and, it “plays nice” with other programs that also work with iptables for filtering (such as Calico!).
+**:warning: issues with IPTables as load balancer**
+  - Latency to access service (routing latency)
+  - Latency to add/remove rule
 
-However, the way kube-proxy programs the iptables rules means that it is nominally an O(n) style algorithm, where n grows roughly in proportion to your cluster size (or more precisely the number of services and number of backend pods behind each service).
+  IPTables are NOT incremental, for every manipulation, we have to copy all rules, make changes, save all rules back, note that IPTables are locked during rule update. When we have for exemple 20k services to implement (160k rules) we have to wait 5 hours :sleeping:
+
+<!---
+  - operates tables provided by linux firewall
+  - manipulate packages at diffrent stage : pre-routing,post-routing,forward, input, output
+  - do more operations : SNAT,DNAT, reject packets, port translation etc
+--->
+
 ### IPvs
 IPVS is a Linux kernel feature that is specifically designed for load balancing. In IPVS mode, kube-proxy programs the IPVS load balancer instead of using iptables.  
 
