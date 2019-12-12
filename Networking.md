@@ -110,6 +110,15 @@ proxy -> target may use HTTP or HTTPS as chosen by proxy using available informa
 - usually supports UDP/TCP only
 - SCTP support (beta features on k8s) is up to the load balancer implementation of the cloud provider
 - implementation varies by cloud provider.
+# network policies ??
+https://kubernetes.io/docs/concepts/services-networking/network-policies/
+
 # references
 
 https://www.projectcalico.org/comparing-kube-proxy-modes-iptables-or-ipvs/
+
+https://sookocheff.com/post/kubernetes/understanding-kubernetes-networking-model/#kubernetes-networking-model
+
+https://kubernetes.io/docs/concepts/cluster-administration/networking/
+
+https://kubernetes.io/docs/concepts/cluster-administration/proxies/
