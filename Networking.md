@@ -12,19 +12,82 @@ ALL kubernetes networking is based on 4 rules :
 - Pod-to-Service networking
 - Internet(external)-to-Service networking
 
+
 ## Container-to-Container Networking
-By default linux assigns every process to the root network namespace to provide access to the external world.
+By default linux assigns every process to the root network namespace to provide access to the external world .every node have a root network namespace by default.
 When creating a new group of containers , docker will create a new network namespace (can be specified with net=...) and assign all of them to it.
-Containers within this namespace will have the same IP address and port space. they can reach each others via localhost since they share the same namespace.
+Containers within this namespace will have the **same IP address and port space** and they **can reach each others via localhost** since they share the same namespace.
+
 ![namespace networking](assets/Networking-540fe.png)
 *Namespace networking within a pod (simplified)*
 
-
 ## Pod-to-Pod Networking
+### Pod-to-Pod same node
+**Pod ns to Root ns :**
+
+From node's perspective, there is different  namespaces (ns) that needs to be connected to each other . we use a virtual ethernet interface (veth) to pair one namespace to the root network namespace. the veth is like a patch cable : connecting the two side and allowing traffic to flow between them.
+
+**Pod ns to Pod ns:**
+
+To connect the two veth of the namespaces , we use a linux ethernet bridge that will connect the two networks together :
+
+The bridge (cbr0) operates by maintaining a forwarding table between sources and destinations by examining the destination of the data packets that travel through it and decides whether or not to forward the data by verifying the MAC address (Operating on layer 2 networking)
+.
+
+(In deep) bridges implements ARP protocol to discover the link-layer MAC address associated with a given IP address.When a data frame is received at the bridge, the bridge broadcasts the frame out to all connected devices (except the original sender) and the device that responds to the frame is stored in a lookup table. Future traffic with the same IP address uses the lookup table to discover the correct MAC address to forward the packet to.
+
+![Pod-to-Pod-same-node](assets/pod-to-pod-same-node.gif)
+*packet trip from a pod to another in the same node*
+
+### Pod-to-Pod different node
+Every node in the cluster is assigned a CIDR block specifying the IP adresses available to pods running on that node .when a pocket leaves the sender Node and enters the network , a network plugin will route the packet to the correct destination Node based on the CIDR block assigned to the destination Node . Most of the network plugins uses CNI(container network interface) to interact in the network.
+
+### CNI Network plugins
+<!-- change chapter position?? -->
+A CNI Network plugins must be executed by the container system management. It manages the interface setup (and its IP) in a namespace and its configuration with the host (bridge connection and routes management).Communications are assured using a simple JSON Schema.
+
+#### Default k8s network (kubenet)
+Kubenet is a very basic simple network plugin, on linux only. its fast stable but have limited features .
+
+the main idea is to configure cbr0 virtual bridge with an IP range, then add manually on each host a route between hosts (User Defined Routing (UDR) and IP forwarding is used for connectivity between pods across nodes).
+
+we can use a cloud provider routing tables to store routes like VPC( limited to 50 nodes because AWS routing table is limited to 50) or azure virtual network (limited to 400 entries)
+![Azure exemple kubenet](assets/Networking-906fe.png)
+*example of Kubenet used in AKS*
+
+#### Flannel
+Flannel is a simple and easy way to configure L3 network fabric for K8s network. Flannel uses either kubernetes API (no database) or etcd directly to store the network configuration.Packets are forwarded using Vxlan (AWS VPC , GCP are in experimental mode)
+
+Flannel's idea is simple : Create another flat network layer (Flannel overlay network) that creates a bridge in every host(node) and connects them via a shared VxLAN.
+
+##### Agents
+
+Flannel uses a single binary agent called `flanneld` implemented on each host (node) and responsible of all the network operations like routing and creating the bridged flannel interface  ...
+
+##### Network details (in deep)
+We will assume that a pod have only one container .
+
+In this scenario contianer-1 (pod-1) in node 1 ` 100.96.1.2` wants to connect to the container-2 (pod-2) in node 2 `100.96.2.3` :
+![Flannel networking](assets/Networking-b39cd.png)
+
+1) Container-1 creates an IP packet with `src: 100.96.1.2 -> dst: 100.96.2.3`
+2) the packet is routed to `docker0` then `flannel0`
+3) `flanneld` will fetch the destination address either from VxLAN Tunneling or Etcd (to verify)
+4) `flanneld` wraps the original IP packet into a UDP packet, with it's own host's IP as a source address and the target hosts's IP as destination address.
+5) In the other side (Node-2) `flanneld` deamon who listens on a default UDP port `:8285` will receive the packet . the packet wiil be traited (by the kernel) and routed to `flannel0` and then to Container-2 (pod 2).
+
+#### Calico
+#### Weavenet
 
 ## Pod-to-Service Networking
 ## External-to-Service Networking
 
+## Conclusion
+
+we can keep in mind that :
+- Container-to-Container managed by namespaces
+- Pod network managed by a CNI
+- Service Network managed by kube-proxy
 # Proxies :oncoming_police_car: :bus: :ambulance:
 
 https://kubernetes.io/docs/concepts/cluster-administration/proxies/
@@ -146,3 +209,10 @@ https://kubernetes.io/docs/concepts/cluster-administration/networking/
 https://kubernetes.io/docs/concepts/cluster-administration/proxies/
 
 https://kubernetes.io/docs/concepts/services-networking/ingress/
+
+https://www.objectif-libre.com/en/blog/2018/07/05/k8s-network-solutions-comparison/
+
+
+https://developers.redhat.com/blog/2018/10/22/introduction-to-linux-interfaces-for-virtual-networking/#bridge
+
+https://docs.microsoft.com/en-us/azure/aks/configure-kubenet

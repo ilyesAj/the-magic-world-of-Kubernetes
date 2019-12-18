@@ -4,6 +4,12 @@
 - **Netfilter** a framework provided by the linux kernel that allows customization of networking-related operations, such as packet filtering, NAT, port translation ..
 ![netfilter framework](assets/Terminology-19d32.png)
 - **IPVS** : (IP Virtual Server) is built on top of the Netfilter and implements transport-layer load balancing as part of the Linux kernel.
+- **Virtual Ethernet Device(veth)** act as tunnels between network namespaces to create a bridge to a physical network device in another namespace, can also be used as standalone network devices [...](http://man7.org/linux/man-pages/man4/veth.4.html).
+- **underlay network**:defined at the physical level (switchs, routers…)
+- **Overlay network**: is a virtual network, composed of vlan, veth (virtual interface) and VxLAN; it encapsulates the network trafic. Overlay is a bit slower than underlay, as it creates tunnels between hosts, which reduces available MTUs (Maximum transmission unit).
+- **MTU(Maximum transmission unit)**:is the size of the largest protocol data unit (PDU) that can be communicated in a single network
+- **TUN (network TUNnel)** : is a virtual network kernel interface network layer device and operates in layer 3(network) carrying IP packets .
+- **TAP** : is a virtual network kernel interface simulates a link layer device and operates in layer 2 carrying Ethernet frames. TUN is used with routing
 - **Sticky session** :is a process in which a load balancer creates an affinity between a client and a specific network server for the duration of a session .
 the load balancer assigns an identifying attribute to a user, typically by issuing a cookie or by tracking their IP details. Then, according to the tracking ID, a load balancer can start routing all of the requests of this user to a specific server for the duration of the session.
 ![sticky session](assets/Terminology-f15cc.png)
@@ -35,7 +41,7 @@ This minimizes network congestion and increases the overall throughput of the sy
 - **batch processing**: a group of jobs, data or programs treated as one unit (traitement en lot in french)
 - **legacy system**: outdated system but still being used .
 - **Greenfield project**: A system developed in a total new environment:  new infra, new customers and even new owners.
-- **CNI**: container network interface
+- **CNI ( Container Network Interface )**:is a group of specifications and libraries that aims helping network plugins integration [...](https://github.com/containernetworking/cni/blob/master/SPEC.md)
 - **CIDR**:(Classless inter-domain routing) also known as Supernets is a method for assigning IP addresses without using the standard IP address classes like Class A, Class B or Class C . For example, in the CIDR address 65.70.30.10/26, the /26 indicates the first 26 bits are used to identify the unique network leaving the remaining bits to identify the hosts. with CIDR , we have more control of the network, we can set a 50.25.11.2/17 mask (which whose forbidden in subnetting with classes) with a total of 32,768 IPs in range between 50.25.0.0 - 50.25.127.255.
 - **Multilayered software architecture**: is a client-server architecture in which presentation, application processing, and data management functions are physically separated.
 common layers are :
