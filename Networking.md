@@ -1,10 +1,30 @@
 # Cluster networking Basics
-- Container-to-Container communications:
-- Pod-to-pod communications
-- Pod-to-service communications
-- External-to-service communications
+ALL kubernetes networking is based on 4 rules :
 
-https://kubernetes.io/docs/concepts/services-networking/ingress/
+- All loosely coupled containers within a pod can communicate with each others
+- All pods can communicate with all other pods (Pods <-> Pods) **without NAT**
+- All nodes can communicate with all Pods (Nodes <-> Pods) **without NAT**
+- the IP that a Pod sees itself as is the same IP that others see it as.
+
+4 problems to solve :
+- Container-to-Container networking
+- Pod-to-Pod networking
+- Pod-to-Service networking
+- Internet(external)-to-Service networking
+
+## Container-to-Container Networking
+By default linux assigns every process to the root network namespace to provide access to the external world.
+When creating a new group of containers , docker will create a new network namespace (can be specified with net=...) and assign all of them to it.
+Containers within this namespace will have the same IP address and port space. they can reach each others via localhost since they share the same namespace.
+![namespace networking](assets/Networking-540fe.png)
+*Namespace networking within a pod (simplified)*
+
+
+## Pod-to-Pod Networking
+
+## Pod-to-Service Networking
+## External-to-Service Networking
+
 # Proxies :oncoming_police_car: :bus: :ambulance:
 
 https://kubernetes.io/docs/concepts/cluster-administration/proxies/
@@ -16,7 +36,7 @@ There are several different proxies you may encounter when using Kubernetes:
 - does not understand HTTP
 - provides load balancing
 - is just used to reach services /  pods load-balancing
-three modes (first one is userspace  deprecated 🔫  ) are available for kube-proxy:
+three modes (first one is user-space deprecated 🔫  ) are available for kube-proxy:
 ### IPtables
 iptables is a user-space application (no root needed) that allows configuring Linux kernel firewall (implemented on top of netfilter) by configuring chains and rules.
 
@@ -79,16 +99,16 @@ Using kubectl proxy :
 # }
   ````
 ### The Apiserver proxy:
-is a bastion built into the apiserver that can :
+is a bastion built into the Apiserver that can :
 - connect a user outside of the cluster to cluster IPs which otherwise might not be reachable
-- runs in the apiserver processes
+- runs in the Apiserver processes
 - used to reach a Node, Pod, or Service
 - do load balancing when used to reach a Service
 
 #### Protocols:
-client -> proxy uses HTTPS (or http if apiserver so configured)
+client -> Apiserver proxy uses HTTPS (or Http if Apiserver so configured)
 
-proxy -> target may use HTTP or HTTPS as chosen by proxy using available information
+Apiserver proxy -> target may use HTTP or HTTPS as chosen by proxy using available information
 ### The kube proxy:
 
 - runs on each node
@@ -110,6 +130,8 @@ proxy -> target may use HTTP or HTTPS as chosen by proxy using available informa
 - usually supports UDP/TCP only
 - SCTP support (beta features on k8s) is up to the load balancer implementation of the cloud provider
 - implementation varies by cloud provider.
+
+
 # network policies ??
 https://kubernetes.io/docs/concepts/services-networking/network-policies/
 
@@ -122,3 +144,5 @@ https://sookocheff.com/post/kubernetes/understanding-kubernetes-networking-model
 https://kubernetes.io/docs/concepts/cluster-administration/networking/
 
 https://kubernetes.io/docs/concepts/cluster-administration/proxies/
+
+https://kubernetes.io/docs/concepts/services-networking/ingress/
