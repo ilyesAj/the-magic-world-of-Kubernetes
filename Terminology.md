@@ -10,6 +10,7 @@
 - **MTU(Maximum transmission unit)**:is the size of the largest protocol data unit (PDU) that can be communicated in a single network
 - **TUN (network TUNnel)** : is a virtual network kernel interface network layer device and operates in layer 3(network) carrying IP packets .
 - **TAP** : is a virtual network kernel interface simulates a link layer device and operates in layer 2 carrying Ethernet frames. TUN is used with routing
+- **Border Gateway Protocol (BGP)** is a routing protocol which shares its routing informations (tables) with autonomous systems routers [...](https://www.cloudflare.com/learning/security/glossary/what-is-bgp/)
 - **Sticky session** :is a process in which a load balancer creates an affinity between a client and a specific network server for the duration of a session .
 the load balancer assigns an identifying attribute to a user, typically by issuing a cookie or by tracking their IP details. Then, according to the tracking ID, a load balancer can start routing all of the requests of this user to a specific server for the duration of the session.
 ![sticky session](assets/Terminology-f15cc.png)
