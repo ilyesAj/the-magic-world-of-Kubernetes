@@ -40,13 +40,18 @@ The bridge (cbr0) operates by maintaining a forwarding table between sources and
 *packet trip from a pod to another in the same node*
 
 ### Pod-to-Pod different node
-Every node in the cluster is assigned a CIDR block specifying the IP adresses available to pods running on that node .when a pocket leaves the sender Node and enters the network , a network plugin will route the packet to the correct destination Node based on the CIDR block assigned to the destination Node . Most of the network plugins uses CNI(container network interface) to interact in the network.
+Every node in the cluster is assigned a CIDR block specifying the IP adresses available to pods running on that node .when a pocket leaves the sender Node and enters the network , a network plugin will route the packet to the correct destination Node based on the CIDR block assigned to the destination Node . Most of the network plugins uses [CNI](#CNI) [container network interface](## CNI Network plugins) to interact in the network.
 
-### CNI Network plugins
+
+
+## Pod-to-Service Networking
+## External-to-Service Networking
+## CNI Network plugins
+(#CNI)
 <!-- change chapter position?? -->
 A CNI Network plugins must be executed by the container system management. It manages the interface setup (and its IP) in a namespace and its configuration with the host (bridge connection and routes management).Communications are assured using a simple JSON Schema.
 
-#### Default k8s network (kubenet)
+### Default k8s network (kubenet)
 Kubenet is a very basic simple network plugin, on linux only. its fast stable but have limited features .
 
 the main idea is to configure cbr0 virtual bridge with an IP range, then add manually on each host a route between hosts (User Defined Routing (UDR) and IP forwarding is used for connectivity between pods across nodes).
@@ -55,16 +60,16 @@ we can use a cloud provider routing tables to store routes like VPC( limited to 
 ![Azure exemple kubenet](assets/Networking-906fe.png)
 *example of Kubenet used in AKS*
 
-#### Flannel
+### Flannel
 Flannel is a simple and easy way to configure L3 network fabric for K8s network. Flannel uses either kubernetes API (no database) or etcd directly to store the network configuration.Packets are forwarded using Vxlan (AWS VPC , GCP are in experimental mode)
 
 Flannel's idea is simple : Create another flat network layer (Flannel overlay network) that creates a bridge in every host(node) and connects them via a shared VxLAN.
 
-##### Agents
+#### Agents
 
 Flannel uses a single binary agent called `flanneld` implemented on each host (node) and responsible of all the network operations like routing and creating the bridged flannel interface  ...
 
-##### Network details (in deep)
+#### Network details (in deep)
 We will assume that a pod have only one container .
 
 In this scenario contianer-1 (pod-1) in node 1 ` 100.96.1.2` wants to connect to the container-2 (pod-2) in node 2 `100.96.2.3` :
@@ -76,7 +81,7 @@ In this scenario contianer-1 (pod-1) in node 1 ` 100.96.1.2` wants to connect to
 4) `flanneld` wraps the original IP packet into a UDP packet, with it's own host's IP as a source address and the target hosts's IP as destination address.
 5) In the other side (Node-2) `flanneld` deamon who listens on a default UDP port `:8285` will receive the packet . the packet wiil be traited (by the kernel) and routed to `flannel0` and then to Container-2 (pod 2).
 
-#### Calico
+### Calico
 While Flannel is positioned as the simple choice, Calico is best known for its performance, flexibility, and power.Calico is well-known for its advanced network features :
 - support IPv6
 - network policies
@@ -88,7 +93,7 @@ behind Calico is that data streams should not be encapsulated, but routed instea
 Calico offers two configurations :
 - IPinIP protocol: (L3) uses encapsulation to transport packet to destination
 - BGP protocol: (L3) Each node runs `BIRD` calico agent that acts like a router .As a result, Every node can  communicate with each others using BGP Protocol.
-##### Agents
+#### Agents
 - ``Felix``: supplies end points (external interface), it shares ip table and routes between nodes.
 
 - ``BIRD (bpg)``: client (and route reflector) used with confd for BGP.  BIRD is a daemon that act like a dynamic router used by Calico with BGP. It is used to centralize routes distribution.
@@ -97,12 +102,12 @@ Calico offers two configurations :
 
 All agents are provisioned as one container launched in each node and as `calico-controller` in the master .
 
-[Calico agents communication ](assets/Networking-5c2d3.png)
+![Calico agents communication ](assets/Networking-5c2d3.png)
 *Calico agents communication*
-Calico uses etcd for key-value storage.it doesn't store routing tables in it .
+Calico uses etcd for key-value storage. it doesn't store routing tables in it .
 
-##### Network details (in deep)
-###### IPinIP
+#### Network details (in deep)
+##### IPinIP
 ![IPinIP](assets/Networking-a2194.png)
 *IPinIP calico tunneling*
 IP in IP is an IP tunneling protocol that encapsulates one IP packet in another IP packet.
@@ -110,7 +115,7 @@ IP in IP is an IP tunneling protocol that encapsulates one IP packet in another 
 To encapsulate an IP packet in another IP packet, an outer header is added with `SourceIP`(the entry point of the tunnel) and the ``DestinationIP`` (the exit point of the tunnel).The inner packet remains unchanged .
 
 Calico will create all the tunnels between different components of the cluster and manage encapsulate/de-encapsulation of the Packets.
-###### BGP
+##### BGP
 ![BGP on calico](assets/Networking-84a67.png)
 *BGP on calico*
 
@@ -126,42 +131,41 @@ try to communicate.
 Calico use **BGP as a routing protocol** that tells other Calico nodes (and the rest of
 the infrastructure) where workloads are at any given point in time.
 
-#### Weavenet
-⚠️ kernel ≥ 3.8, docker ≥1.10.0, Kubernetes ≥ 1.4, master with at least 2 CPU.
+### Weavenet
+>⚠️ kernel ≥ 3.8, docker ≥1.10.0, Kubernetes ≥ 1.4, master with at least 2 CPU.
+
 Weave net provides VxLAN on layer 2 networking for Kubernetes. It uses kube-proxy and kube-dns. It supports IPv4 and IPv6.
 
-Weave creates a mesh overlay network between each of the nodes in the cluster, allowing for flexible routing between participants.To send traffic to another node,Weave  makes an automatic decision whether to send it via “fast datapath” or to fall back on the “sleeve” packet forwarding method.
+Weave creates a mesh overlay network between each of the nodes in the cluster, allowing for flexible routing between participants.
+To send traffic to another node,Weave  makes an automatic decision whether to send it via “fast datapath” or to fall back on the “sleeve” packet forwarding method.
 
-##### agents
+#### agents
 Each pod has two containers: ``weave`` (routing component) for managing traffic and ``weave-npc`` (Network Policy Controller) for managing the k8s ``NetworkPolicies`` .
 
 Unlike other network solutions using etcd to stock data, WeaveNet saves its settings and data in a ``/weavedb/weave-netdata.db`` file and shares it on each pod .
-##### Network details (in deep)
+#### Network details (in deep)
 
-###### Fast Datapath
+##### Fast Datapath
 ![fast datapath Weave Net](assets/Networking-1ff7b.png)
 *fast datapath Weave Net*
 The fast datapath in Weave Net uses the Linux kernel’s Open vSwitch datapath module. This module enables the Weave Net router to tell the kernel how to process packets.
 
 Weave Net issues instructions directly to the kernel, context switches are decreased, and so by using fast datapath CPU overhead and latency is reduced. The packet goes straight from your application to the kernel, where the Virtual Extensible Lan (VXLAN) header is added (the NIC does this if it offers VXLAN acceleration).
 
-###### sleeve mode
+##### sleeve mode
 sleeve mode is available as a backup when the networking topology isn’t suitable for fast datapath routing. It is a slower encapsulation mode that can route packets in instances where fast datapath does not have the necessary routing information or connectivity.
 
 (Same encapsulation (UDP) used in flannel )
 
 [details ...](https://www.weave.works/docs/net/latest/concepts/router-encapsulation/)
 
-#### Comparing K8s CNI Providers
+### Comparing K8s CNI Providers
 | Solution  | K8s networkPolicies | IPv6 | Network Model (Layers) | Networks                                          | Route Distribution | Mesh | External Datastore | Encryption |             Ingress/Egress Policies            | Note |
 |-----------|:-------------------:|------|:----------------------:|---------------------------------------------------|:------------------:|------|:------------------:|------------|:----------------------------------------------:|------|
 | Calico    | Yes                 | Yes  |    L3  (IPinIP, BGP)   |             Many networks  on cluster             | Yes                | Yes  | Etcd (optional)    | Yes        | Yes                                            |      |
 | Weave net | Yes                 | Yes  |       L2  (VxLAN)      |               Subnetworks  by nodes               | N/A                | Yes  | No                 | Yes        | Yes(does not have egress rules out of the box) |      |
 | flannel   | No                  | No   |       L2 (VxLAN)       | Many networks  on same cluster  with multi daemon | No                 | No   | None               | No         | No                                             |      |
-## Pod-to-Service Networking
-## External-to-Service Networking
-
-## Conclusion
+## Conclusion  
 
 we can keep in mind that :
 - Container-to-Container managed by namespaces
@@ -279,31 +283,18 @@ https://kubernetes.io/docs/concepts/services-networking/network-policies/
 
 # references
 
-https://www.projectcalico.org/comparing-kube-proxy-modes-iptables-or-ipvs/
-
-https://sookocheff.com/post/kubernetes/understanding-kubernetes-networking-model/#kubernetes-networking-model
-
-https://kubernetes.io/docs/concepts/cluster-administration/networking/
-
-https://kubernetes.io/docs/concepts/cluster-administration/proxies/
-
-https://kubernetes.io/docs/concepts/services-networking/ingress/
-
-https://www.objectif-libre.com/en/blog/2018/07/05/k8s-network-solutions-comparison/
-
-
-https://developers.redhat.com/blog/2018/10/22/introduction-to-linux-interfaces-for-virtual-networking/#bridge
-
-https://docs.microsoft.com/en-us/azure/aks/configure-kubenet
-
-https://github.com/kubernetes/kops/blob/master/docs/networking.md
-
-https://blog.laputa.io/kubernetes-flannel-networking-6a1cb1f8ec7c
-
-https://github.com/coreos/flannel
-
-[Docker Overlay Networks.pdf](ressources\Docker_Overlay_Networks.pdf)
-
-[calicoandbgp.pdf](ressources\calicoandbgp.pdf)
-
-[k8s networking rancher.pdf](ressources\Diving_Deep_Into_Kubernetes_Networking_rancher.pdf)
+- https://www.projectcalico.org/comparing-kube-proxy-modes-iptables-or-ipvs/
+- https://sookocheff.com/post/kubernetes/understanding-kubernetes-networking-model/#kubernetes-networking-model
+- https://kubernetes.io/docs/concepts/cluster-administration/networking/
+- https://kubernetes.io/docs/concepts/services-networking/ingress/
+- https://www.objectif-libre.com/en/blog/2018/07/05/k8s-network-solutions-comparison/
+- https://developers.redhat.com/blog/2018/10/22/introduction-to-linux-interfaces-for-virtual-networking/#bridge
+- https://docs.microsoft.com/en-us/azure/aks/configure-kubenet
+- https://github.com/kubernetes/kops/blob/master/docs/networking.md
+- https://blog.laputa.io/kubernetes-flannel-networking-6a1cb1f8ec7c
+- https://github.com/coreos/flannel
+- https://chrislovecnm.com/kubernetes/cni/choosing-a-cni-provider/
+- https://rancher.com/blog/2019/2019-03-21-comparing-kubernetes-cni-providers-flannel-calico-canal-and-weave/
+- [Docker Overlay Networks.pdf](ressources\Docker_Overlay_Networks.pdf)
+- [calicoandbgp.pdf](ressources\calicoandbgp.pdf)
+- [k8s networking rancher.pdf](ressources\Diving_Deep_Into_Kubernetes_Networking_rancher.pdf)
