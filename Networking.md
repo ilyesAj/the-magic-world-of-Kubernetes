@@ -40,7 +40,7 @@ The bridge (cbr0) operates by maintaining a forwarding table between sources and
 *packet trip from a pod to another in the same node*
 
 ### Pod-to-Pod different node
-Every node in the cluster is assigned a CIDR block specifying the IP adresses available to pods running on that node .when a pocket leaves the sender Node and enters the network , a network plugin will route the packet to the correct destination Node based on the CIDR block assigned to the destination Node . Most of the network plugins uses [CNI container network interface](##-cni-network-plugins) to interact in the network.
+Every node in the cluster is assigned a CIDR block specifying the IP adresses available to pods running on that node .when a pocket leaves the sender Node and enters the network , a network plugin will route the packet to the correct destination Node based on the CIDR block assigned to the destination Node . Most of the network plugins uses [CNI container network interface](#cni-network-plugins) to interact in the network.
 
 ## Pod-to-Service Networking
 ## External-to-Service Networking
