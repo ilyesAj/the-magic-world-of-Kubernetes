@@ -39,7 +39,9 @@ In the next section we will go into the details of each component:
 ## Master (Cluster control plane component) 🧠
 Master components provide the cluster's control plane. Master components are considered as the brain of the cluster: they make decisions , execute, scheduler then and monitors it. they also detect and respond to any cluster events . Master components can be run on any machine in the cluster to ensure HA cluster with multi-master VM setups.
 ![master archi commercial](assets/README-ec8ab.png)
+*Simplified architecture of K8s*
 ![master archi technical](assets/README-ee59c.png)
+*Advanced architecture of K8s*
 ### Master Components
 #### Kube-APIserver
 kubernetes API server is the central unit for managing all the cluster . ALL Components interact with each other through the API . Kube-Apiserver acts also like a gatekeeper :door: by handling authentication and authorization, request validation, mutation and admission control .Also this is the only component that communicates with the etcd cluster (for security reasons), making sure data is stored in etcd and is in agreement with the service details of the deployed pods .
@@ -101,7 +103,9 @@ general purpose web front end for the Kubernetes Cluster.
 ## Node
 The Kubernetes node has the necessary tools  to run application containers and be managed from the master systems.it's most likely a VM or physical machine .
 ![node archi](assets/README-d5a15.png)
+*Simplified view of a node*
 ![node archi2](assets/README-9dc7f.png)
+*Advanced view of a node*
 ### Node Component
 #### Kubelet: :vertical_traffic_light: :blue_heart:
 the most important controller in k8s .it's the primary implementer of the pod and node APIs that drive the container execution layer .kubelet is required on every host in the k8s cluster (even in the master .)he's always watching kube-apiserver for any change (ensures that the containers described in those PodSpecs are running and healthy) . in addition, we can communicate to kubelet via HTTP endpoint, HTTP server or file.
@@ -210,8 +214,9 @@ Pods model is defined as application specific "logical host", it means that a po
 
 :question: Why not just run multiple programs in a single (Docker) container?
 Using pods enhances transparency,decoupling software dependencies,ease to use and efficiency.
-
+<!--
 ![pod_container](assets/README-fb157.png)
+-->
 ![pod_container](assets/README-f380a4dd.png)
 
 ### Pod Status

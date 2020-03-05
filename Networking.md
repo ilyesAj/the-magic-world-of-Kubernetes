@@ -40,13 +40,11 @@ The bridge (cbr0) operates by maintaining a forwarding table between sources and
 *packet trip from a pod to another in the same node*
 
 ### Pod-to-Pod different node
-Every node in the cluster is assigned a CIDR block specifying the IP adresses available to pods running on that node .when a pocket leaves the sender Node and enters the network , a network plugin will route the packet to the correct destination Node based on the CIDR block assigned to the destination Node . Most of the network plugins uses [CNI container network interface](#cni-network-plugins) to interact in the network.
+Every node in the cluster is assigned a CIDR block specifying the IP adresses available to pods running on that node .when a pocket leaves the sender Node and enters the network , [a network plugin](#cni-network-plugins) will route the packet to the correct destination Node based on the CIDR block assigned to the destination Node . Most of the network plugins uses CNI (container network interface ) to interact in the network.
 
 ## Pod-to-Service Networking
 ## External-to-Service Networking
 ## CNI Network plugins
-(#CNI)
-<!-- change chapter position?? -->
 A CNI Network plugins must be executed by the container system management. It manages the interface setup (and its IP) in a namespace and its configuration with the host (bridge connection and routes management).Communications are assured using a simple JSON Schema.
 
 ### Default k8s network (kubenet)
@@ -105,7 +103,7 @@ All agents are provisioned as one container launched in each node and as `calico
 Calico uses etcd for key-value storage. it doesn't store routing tables in it .
 
 #### Network details (in deep)
-##### IPinIP
+##### IPinIP protocol
 ![IPinIP](assets/Networking-a2194.png)
 *IPinIP calico tunneling*
 IP in IP is an IP tunneling protocol that encapsulates one IP packet in another IP packet.
@@ -113,7 +111,7 @@ IP in IP is an IP tunneling protocol that encapsulates one IP packet in another 
 To encapsulate an IP packet in another IP packet, an outer header is added with `SourceIP`(the entry point of the tunnel) and the ``DestinationIP`` (the exit point of the tunnel).The inner packet remains unchanged .
 
 Calico will create all the tunnels between different components of the cluster and manage encapsulate/de-encapsulation of the Packets.
-##### BGP
+##### BGP protocol
 ![BGP on calico](assets/Networking-84a67.png)
 *BGP on calico*
 
@@ -160,7 +158,7 @@ sleeve mode is available as a backup when the networking topology isn’t suitab
 ### Comparing K8s CNI Providers
 | Solution  | K8s networkPolicies | IPv6 | Network Model (Layers) | Networks                                          | Route Distribution | Mesh | External Datastore | Encryption |             Ingress/Egress Policies            | Note |
 |-----------|:-------------------:|------|:----------------------:|---------------------------------------------------|:------------------:|------|:------------------:|------------|:----------------------------------------------:|------|
-| Calico    | Yes                 | Yes  |    L3  (IPinIP, BGP)   |             Many networks  on cluster             | Yes                | Yes  | Etcd (optional)    | Yes        | Yes                                            |      |
+| Calico    | Yes                 | Yes  |    L3  (IPinIP, BGP)   |             Many networks  on cluster             | Yes                | Yes  | Etcd (optional)    | Yes        | Yes                                            |Native support for VXLAN from calico v3.7      |
 | Weave net | Yes                 | Yes  |       L2  (VxLAN)      |               Subnetworks  by nodes               | N/A                | Yes  | No                 | Yes        | Yes(does not have egress rules out of the box) |      |
 | flannel   | No                  | No   |       L2 (VxLAN)       | Many networks  on same cluster  with multi daemon | No                 | No   | None               | No         | No                                             |      |
 ## Conclusion  
@@ -293,6 +291,7 @@ https://kubernetes.io/docs/concepts/services-networking/network-policies/
 - https://github.com/coreos/flannel
 - https://chrislovecnm.com/kubernetes/cni/choosing-a-cni-provider/
 - https://rancher.com/blog/2019/2019-03-21-comparing-kubernetes-cni-providers-flannel-calico-canal-and-weave/
+- https://www.weave.works/docs/net/latest/concepts/fastdp-how-it-works/
 - [Docker Overlay Networks.pdf](ressources\Docker_Overlay_Networks.pdf)
 - [calicoandbgp.pdf](ressources\calicoandbgp.pdf)
 - [k8s networking rancher.pdf](ressources\Diving_Deep_Into_Kubernetes_Networking_rancher.pdf)
