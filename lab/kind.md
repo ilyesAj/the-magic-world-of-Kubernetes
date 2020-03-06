@@ -78,6 +78,17 @@ nodes:
 #- role: worker
 ````
 Refer to documentation for more details : https://kind.sigs.k8s.io/docs/user/configuration/
+
+run the command below to create the cluster :
+````sh
+kind create cluster --config=config.yml --name=first -v 4 --kubeconfig=$PWD/kube.yml
+````
+By default, the cluster access configuration is stored in ${HOME}/.kube/config if $KUBECONFIG environment variable is not set.
+to access to the cluster :
+````sh
+kubectl cluster-info --context kind-first --kubeconfig $PWD/kube.yml
+````
+
 # references
 https://golang.org/doc/code.html#GOPATH
 https://kind.sigs.k8s.io/

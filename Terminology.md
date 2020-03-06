@@ -104,3 +104,9 @@ common layers are :
   - Synchronizing state machine replicas and ensuring consistency among them.
 
 - **Qorum**:is the minimum number of votes that a distributed transaction has to obtain in order to be allowed to perform an operation in a distributed system
+
+- **SAN** : is a specialized, high-speed network that provides block-level network access to storage. SANs are typically composed of hosts, switches, storage elements, and storage devices that are interconnected using a variety of technologies, topologies, and protocols. SANs may also span multiple sites.
+![SAN](assets/Terminology-8561a.png)
+- **NAS** : (Network-attached storage) used for file storage and ideal for home use . Technically it's a computer that shares his volumes with the network
+- **iSCSI** : A transport protocol that provides for the SCSI protocol to be carried over a TCP based IP network.
+- **SCSI protocol**: A collection of ANSI standards and proposed standards that define I/O interconnects primarily intended for connecting storage subsystems or devices to hosts through host bus adapters.
