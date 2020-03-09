@@ -309,3 +309,4 @@ https://kubernetes.io/docs/concepts/storage/persistent-volumes/
 - https://dzone.com/articles/the-rise-of-service-mesh-architecture?preview=true
 - https://dzone.com/articles/sidecar-design-pattern-in-your-microservices-ecosy-1
 - https://kubernetes.io/docs/concepts/architecture/master-node-communication/
+- https://www.ovh.com/blog/getting-external-traffic-into-kubernetes-clusterip-nodeport-loadbalancer-and-ingress/

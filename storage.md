@@ -34,17 +34,30 @@ A kubernetes Volume is :
     - Survive when Pod restart
     - Can be attached to any of the containers within the pod
 - A pod can have one or more types of volumes attached to it
-- Volumes can not mount onto other volumes or have hard links to other volumes
+- Volumes can **not** mount onto other volumes or have hard links to other volumes
 
 At its core, a volume is just a directory, possibly with some data in it, which is accessible to the Containers in a Pod.
 **How that directory comes to be, the medium that backs it, and the contents of it are determined by the particular volume type used.**
 ### Volumes plugins
-    - In-tree plugins:
-    - CSI:
+A Kubernetes Volume plugin extends the Kubernetes volume interface to support a block and/or file storage system.
+two main types of plugins :
+
+- In-tree plugins **[Deprecated]**: those plugins were built, linked, compiled, and shipped with the core Kubernetes binaries and extend the core Kubernetes API
+- Out-of-tree plugins : are developed independently of the Kubernetes code base, and are deployed (installed) on Kubernetes clusters as extensions.
+    - Out-of-tree FlexVolume driver [deprecated]
+    - **Out-of-tree CSI driver [ primary volume plugin system for K8s]** : Container Storage Interface (CSI) is a standardized mechanism for Container Orchestration Systems (COs), including Kubernetes, to expose arbitrary storage systems to containerized workloads.
+#### why In-tree plugins were deprecated ?
+
+In-tree plugins are tightly coupled and dependent on kubernetes releases : they are hard to maintain and can cause crushes to the master components(Bugs in volume plugins affect critical Kubernetes components).in addition Source code have to be open source which can cause problem to storage vendors
+sig-storage decided to :
+
+- No new in-tree plugins are accepted
+- existing plugins will be maintained until full migration to CSI plugins
+- All new Volume plugin devloppment will be based on CSI  
 ## Volume types
 
 ### Remote storage
-
+most of the remote storage plugins supports persisting beyond a pod's lifecyv=cle, but generally are not mounted directly except through a PVC
 - GCE Persistent Disk
 - AWS Elastic Block Store
 - Azure File Storage

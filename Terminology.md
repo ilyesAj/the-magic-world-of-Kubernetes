@@ -43,6 +43,7 @@ This minimizes network congestion and increases the overall throughput of the sy
 - **legacy system**: outdated system but still being used .
 - **Greenfield project**: A system developed in a total new environment:  new infra, new customers and even new owners.
 - **CNI ( Container Network Interface )**:is a group of specifications and libraries that aims helping network plugins integration [...](https://github.com/containernetworking/cni/blob/master/SPEC.md)
+- **CSI**:Container Storage Interface (CSI) is a standardized mechanism for Container Orchestration Systems (COs), including Kubernetes, to expose arbitrary storage systems to containerized workloads.
 - **CIDR**:(Classless inter-domain routing) also known as Supernets is a method for assigning IP addresses without using the standard IP address classes like Class A, Class B or Class C . For example, in the CIDR address 65.70.30.10/26, the /26 indicates the first 26 bits are used to identify the unique network leaving the remaining bits to identify the hosts. with CIDR , we have more control of the network, we can set a 50.25.11.2/17 mask (which whose forbidden in subnetting with classes) with a total of 32,768 IPs in range between 50.25.0.0 - 50.25.127.255.
 - **Multilayered software architecture**: is a client-server architecture in which presentation, application processing, and data management functions are physically separated.
 common layers are :
