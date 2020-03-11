@@ -57,7 +57,9 @@ sig-storage decided to :
 ## Volume types
 
 ### Remote storage
-most of the remote storage plugins supports persisting beyond a pod's lifecyv=cle, but generally are not mounted directly except through a PVC
+this type of storage is provided and maintained by a third-party storage vendor that exposes an API to create,access,update or delete volumes .
+most of the remote storage plugins supports persisting data beyond a pod's lifecycle, they are referenced in pod either in-line( Not recommended for Workload portability ) or via PV/PVC
+Examples:
 - GCE Persistent Disk
 - AWS Elastic Block Store
 - Azure File Storage
@@ -73,13 +75,17 @@ most of the remote storage plugins supports persisting beyond a pod's lifecyv=cl
 - Quobyte Volume
 - FibreChannel
 - VMware Photon PD
+The advantage of remote storage is the fact that **storage and compute are decoupled** : If node is terminated or crashes (for Resources shortage for example) , the state of the application will be maintained regardless of the state of the node (that stores the data ) or the pod (scheduled in that node).
 
 ### Ephemeral Storage
+Temp scratch file space from host machine(temporarily).this space is usually used to share data between containers within the same pod.
+this type of storage can only be referenced 'in-line'in pod definition (not PV/PVC) and is loosely coupled to Tied to the **Pod's Lifecycle**
 - EmptyDir
-- Expose Kubernetes API
-- Secret
-- ConfigMap
-- DownwardAPI
+- Expose Kubernetes API ?
+Built-in top of emptyDir:
+  - Secret
+  - ConfigMap
+  - DownwardAPI
 
 ### Local persistent Volume
 
