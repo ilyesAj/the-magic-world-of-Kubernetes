@@ -1,3 +1,46 @@
+# Networking
+<!-- MDTOC maxdepth:6 firsth1:1 numbering:1 flatten:0 bullets:1 updateOnSave:1 -->
+
+- 1. [Networking](#networking)   
+- 2. [Cluster networking Basics](#cluster-networking-basics)   
+   - 2.1. [Container-to-Container Networking](#container-to-container-networking)   
+   - 2.2. [Pod-to-Pod Networking](#pod-to-pod-networking)   
+      - 2.2.1. [Pod-to-Pod same node](#pod-to-pod-same-node)   
+      - 2.2.2. [Pod-to-Pod different node](#pod-to-pod-different-node)   
+   - 2.3. [Pod-to-Service Networking](#pod-to-service-networking)   
+   - 2.4. [External-to-Service Networking](#external-to-service-networking)   
+   - 2.5. [CNI Network plugins](#cni-network-plugins)   
+      - 2.5.1. [Default k8s network (kubenet)](#default-k8s-network-kubenet)   
+      - 2.5.2. [Flannel](#flannel)   
+         - 2.5.2.1. [Agents](#agents)   
+         - 2.5.2.2. [Network details (in deep)](#network-details-in-deep)   
+      - 2.5.3. [Calico](#calico)   
+         - 2.5.3.1. [Agents](#agents)   
+         - 2.5.3.2. [Network details (in deep)](#network-details-in-deep)   
+            - 2.5.3.2.1. [IPinIP protocol](#ipinip-protocol)   
+            - 2.5.3.2.2. [BGP protocol](#bgp-protocol)   
+      - 2.5.4. [Weavenet](#weavenet)   
+         - 2.5.4.1. [agents](#agents)   
+         - 2.5.4.2. [Network details (in deep)](#network-details-in-deep)   
+            - 2.5.4.2.1. [Fast Datapath](#fast-datapath)   
+            - 2.5.4.2.2. [sleeve mode](#sleeve-mode)   
+      - 2.5.5. [Comparing K8s CNI Providers](#comparing-k8s-cni-providers)   
+   - 2.6. [Conclusion](#conclusion)   
+- 3. [Proxies :oncoming_police_car: :bus: :ambulance:](#proxies-oncoming_police_car-bus-ambulance)   
+   - 3.1. [kube-proxy](#kube-proxy)   
+      - 3.1.1. [IPtables](#iptables)   
+      - 3.1.2. [IPvs](#ipvs)   
+      - 3.1.3. [The kubectl proxy:](#the-kubectl-proxy)   
+         - 3.1.3.1. [Use case : Directly accessing the REST API with an http client (curl & wget ):](#use-case-directly-accessing-the-rest-api-with-an-http-client-curl-wget)   
+      - 3.1.4. [The Apiserver proxy:](#the-apiserver-proxy)   
+         - 3.1.4.1. [Protocols:](#protocols)   
+      - 3.1.5. [The kube proxy:](#the-kube-proxy)   
+      - 3.1.6. [(optional) A Proxy/Load-balancer in front of apiserver(s):](#optional-a-proxyload-balancer-in-front-of-apiservers)   
+      - 3.1.7. [(optional) Cloud Load Balancers on external services:](#optional-cloud-load-balancers-on-external-services)   
+- 4. [network policies ??](#network-policies)   
+- 5. [references](#references)   
+
+<!-- /MDTOC -->
 # Cluster networking Basics
 ALL kubernetes networking is based on 4 rules :
 
