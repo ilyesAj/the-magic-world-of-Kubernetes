@@ -68,6 +68,7 @@ scheduler decides **which nodes should run which pods**, updates pod with a node
 - General hardware requirements
 - affinity/anti-affinity
 - labels, and other various custom resource requirements.
+- taints and tolerations
 The Kubernetes scheduler is a policy-rich, topology-aware, workload-specific function that significantly **impacts availability, performance, and capacity.workload**
 
 ➕ we can run multiple schedulers in the same cluster example : kube-batch  
@@ -298,8 +299,6 @@ https://kubernetes.io/docs/reference/access-authn-authz/authentication/
 ## authorization
 ### RBAC authorization
 https://kubernetes.io/docs/reference/access-authn-authz/rbac/
-# Storage
-https://kubernetes.io/docs/concepts/storage/persistent-volumes/
 # References
 - https://www.bizety.com/2018/08/21/stateful-vs-stateless-architecture-overview/
 - https://github.com/tkssharma/k8s-learning

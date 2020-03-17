@@ -225,6 +225,7 @@ spec:
       persistentVolumeClaim:
         claimName: pvc-selector-example
 ```
+[if the default storage class have a WaitForFirstConsumer strategy ]
 If we don't declare a consumer , the PVC will be on `Pending` state with ``WaitForFirstConsumer`` from scheduler.it means that the PVC will be scheduled only if a first consumer use it .
 **local-path rancher provisioner dosn't support local-path rancher.io provisionning**
 **Command**
