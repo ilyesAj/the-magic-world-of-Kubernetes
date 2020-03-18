@@ -1,5 +1,5 @@
-#Storage Concepts
-<!-- MDTOC maxdepth:6 firsth1:1 numbering:1 flatten:1 bullets:1 updateOnSave:1 -->
+# Storage Concepts
+<!-- MDTOC maxdepth:6 firsth1:1 numbering:1 flatten:0 bullets:1 updateOnSave:1 -->
 
 - 1. [File VS Block Vs Object storage](#file-vs-block-vs-object-storage)   
 - 2. [Stateful apps in kubernetes](#stateful-apps-in-kubernetes)   

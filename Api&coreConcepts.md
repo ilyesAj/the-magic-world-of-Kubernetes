@@ -1,4 +1,22 @@
-#API
+# K8s API
+<!-- MDTOC maxdepth:6 firsth1:1 numbering:1 flatten:0 bullets:1 updateOnSave:1 -->
+
+- 1. [K8s API](#k8s-api)   
+- 2. [API ?](#api)   
+   - 2.1. [API Versioning](#api-versioning)   
+   - 2.2. [API Groups](#api-groups)   
+   - 2.3. [Object model](#object-model)   
+      - 2.3.1. [Object expression](#object-expression)   
+      - 2.3.2. [Workloads Object Model](#workloads-object-model)   
+- 3. [Core Concepts](#core-concepts)   
+   - 3.1. [Namespaces](#namespaces)   
+   - 3.2. [Pods](#pods)   
+   - 3.3. [Labels](#labels)   
+   - 3.4. [Selectors](#selectors)   
+   - 3.5. [Services](#services)   
+
+<!-- /MDTOC -->
+# API ?
 The REST API is the **KeyStone** of kubernetes .All operations and communications between components, and external users are API calls that the API Server handles . An object oriented architecture is used .  
 **Main format:**
 ````
