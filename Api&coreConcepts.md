@@ -92,9 +92,85 @@ Workload related objects within k8s have an additional two nested fields ``spec`
 
 
 # Core Concepts
-## Namespaces
-## Pods
+Kubernetes has several core building blocks that make up the foundation of  their higher level components.
 
+## Namespaces
+
+Kubernetes supports multiple virtual clusters backed by the same physical cluster. These virtual clusters are called namespaces.
+Creating a new namespace is needed when :
+  - Divide cluster resources between multiple users (When several users or teams share a cluster with a fixed number of nodes, there is a concern that one team could use more than its fair share of resources. we talk abbout ``resource quota``)
+  - When we need a unique names of ressources in the namespace. Creating a new namespace provides a new scope for names .
+  - A mechanism to attach authorization and policy to a subsection of the cluster  
+
+⚠️ Most of the resources in k8s belongs to a namespace but not all of them : for example PVs are not attached to any namespace , you can see the complete list with `kubectl api-resources --namespaced=false
+`
+### Default namespaces
+Three initial namespaces:
+- ``default``: The default namespace for objects with no other namespace
+- ``kube-system``: Objects and resources created by k8s itself
+- ``kube-public``: This namespace is created automatically and is readable by all users (including those not authenticated).This namespace is usually reserved for cluster bootstrapping and configuration.
+### DNS entry
+When you create a Service, it creates a corresponding **DNS entry**. This entry is of the form ``<service-name>.<namespace-name>.svc.cluster.local``, which means that if a container just uses ``<service-name>`` it will resolve to the service which is local to a namespace.  
+## Pods
+In this section we will discuss the implementation of pods not their significations , please refer to [README](README.md)  
+Example of attributes that can be used to declare a pod:
+- ``name``: The name of the container
+- ``image``: The container image
+- ``ports``: array of ports to expose. Can be granted a friendly name and protocol may be specified
+- ``env``: array of environment variables
+- ``command``: Entrypoint array (equiv to Docker ENTRYPOINT)
+- ``args``: Arguments to pass to the command (equiv to Docker CMD)
+````YAML
+apiVersion: v1
+kind: Pod
+metadata:
+  name: multi-container-example
+spec:
+  containers:
+  - name: nginx
+    image: nginx:stable-alpine
+    ports:
+    - containerPort: 80
+    volumeMounts:
+    - name: html
+      mountPath: /usr/share/nginx/html
+  - name: content
+    image: alpine:latest
+    command: ["/bin/sh", "-c"]
+    args:
+      - while true; do
+          date >> /html/index.html;
+          sleep 5;
+        done
+    volumeMounts:
+    - name: html
+      mountPath: /html
+  volumes:
+  - name: html
+    emptyDir: {}
+````
 ## Labels
+Key/value pairs are used to group objects and resources together .Labels are intended to specify **identifying attributes of objects** that are meaningful and relevant to users without implying directly semantics to the core system (No technical labels but normal human readable names )
+Labels are **NOT** characteristic of uniqueness .Each Key must be unique for a given object.
+
+Example labels:
+
+- "``release``" : "``stable``", "``release``" : "``canary``
+- "``environment``" : "``dev``", "``environment``" : "``qa``", "``environment``" : "``production``"
+- "``tier``" : "`frontend`", "``tier``" : "``backend``", "``tier``" : "``cache``"
+- "``partition``" : "``customerA``", "``partition``" : "``customerB``"
+- "``track``" : "``daily``", "``track``" : "``weekly``"
+
+![Label example](assets/Api&coreConcepts-6bb66.png)
+
 ## Selectors
+Selectors use labels to filter or select objects, and are used throughout Kubernetes.
+Unlike names and UIDs, labels do not provide uniqueness. In general, we expect many objects to carry the same label(s).
+
+Via a label selector, the client/user can identify a set of objects. **The label selector is the core grouping primitive in Kubernetes.**  
+The API currently supports two types of selectors:
+- **Equality-based**:  ``=``,``==``,``!=`` Matching objects must satisfy all of the specified label constraints
+- **set-based** : ``in``,``notin`` and ``exists`` (only the key identifier): allow filtering keys according to a set of values  
+
+![Selectors based on nodes](assets/Api&coreConcepts-8e508.png)
 ## Services
