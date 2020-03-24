@@ -206,8 +206,92 @@ The API currently supports two types of selectors:
 ## Services
 
 In this section we will discuss the implementation of services not their definition, please refer to [README](README.md#services)
+Note that every service type are not distingushed but **built on top of one another**
 
 ### ClusterIP (default)
+
+ClusterIP services exposes a service on a strictly cluster internal virtual IP.
+
+````yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: example-prod
+spec:
+  selector:
+    app: nginx
+    env: prod
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+
+````
+
+from another pod we can access it via :
+
+````sh
+nslookup example-prod.default.svc.cluster.local
+#Name:      example-prod.default.svc.cluster.local
+#Address 1: 10.96.28.176 example-prod.default.svc.cluster.local
+````
+
 ### NodePort
+
+ Exposes the Service on each Node’s IP at a static port (the NodePort). A ClusterIP Service, to which the NodePort Service routes, is automatically created. You’ll be able to contact the NodePort Service, from **outside the cluster**, by requesting ``<NodeIP>:<NodePort>``
+
+````yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: example-prod
+spec:
+  type: NodePort
+  selector:
+    app: nginx
+    env: prod
+  ports:
+  - nodePort: 32410
+    protocol: TCP
+    port: 80
+    targetPort: 80
+
+````
+
 ### LoadBalancer
+
+The LoadBalancer service extends NodePort turns it into a highly-available externally consumable resource.This service uses external cloud provider's load balancer to expose service externally
+:attention: **MUST** Work with some external system to provide cluster ingress
+
+````yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: example-prod
+spec:
+  type: LoadBalancer
+  selector:
+    app: nginx
+    env: prod
+  ports:
+    protocol: TCP
+    port: 80
+    targetPort: 80
+
+````
+
 ### ExternalName
+
+ExternalName is used to reference endpoints OUTSIDE the cluster.it Creates an internal CNAME DNS entry that aliases another.
+
+````yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: example-prod
+spec:
+  type: ExternalName
+spec:
+  externalName: example.com
+
+````
