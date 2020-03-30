@@ -111,3 +111,12 @@ common layers are :
 - **NAS** : (Network-attached storage) used for file storage and ideal for home use . Technically it's a computer that shares his volumes with the network
 - **iSCSI** : A transport protocol that provides for the SCSI protocol to be carried over a TCP based IP network.
 - **SCSI protocol**: A collection of ANSI standards and proposed standards that define I/O interconnects primarily intended for connecting storage subsystems or devices to hosts through host bus adapters.
+- **Deployment strategy**:
+  - **Big Bang Deployment**:update whole or large parts of an application in one fell swoop
+  - **Rolling Deployment**: In a rolling deployment, an application’s new version gradually replaces the old one. The actual deployment happens over a period of time. During that time, **new and old versions will coexist without affecting functionality or user experience.** This process makes it easier to roll back any new component incompatible with the old components.
+  ![Rolling Deployment](assets/Terminology-205921.png)
+  -**Blue-Green, Red-Black or A/B Deployment**:We have the two production environments (Green and blue ), one with the actual version (blue) and one with the newer one (green).Once the testing results on the new version are successful, application traffic is routed from blue to green. Green then becomes the new production.
+  ![Blue-Green](assets/Terminology-210347.png)
+  -**Canary Deployment**:Canary deployment is like blue-green, except it’s more risk-averse.With this deployment, you deploy a new application code in a small part of the production infrastructure. Once the application is signed off for release, **only a few users are routed to it**. This minimizes any impact.
+  With no errors reported, the new version can gradually roll out to the rest of the infrastructure.
+  ![Canary](assets/Terminology-210615.png)

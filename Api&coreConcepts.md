@@ -258,6 +258,8 @@ spec:
 
 ````
 
+![NodePort](assets/Api&coreConcepts-154455.png)
+
 ### LoadBalancer
 
 The LoadBalancer service extends NodePort turns it into a highly-available externally consumable resource.This service uses external cloud provider's load balancer to expose service externally
