@@ -664,8 +664,9 @@ Generate POD Manifest YAML file (``-o yaml``). Don't create it(``--dry-run``)
 
 ``kubectl run --generator=run-pod/v1 nginx --image=nginx --dry-run -o yaml``
 
+**IMPORTANT:**
 
-
+if you run ``kubectl run nginx --image=nginx``, this will **NOT** generate a pod with ``name=nginx`` BUT a deployment named nginx  
 ### Deployment
 
 Generate Deployment YAML file (-o yaml). Don't create it(--dry-run) with 4 Replicas (--replicas=4) and Save it to a file - (If you need to modify or add some other details)
