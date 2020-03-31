@@ -13,7 +13,8 @@
    - 3.2. [Pods](#pods)   
    - 3.3. [Labels](#labels)   
    - 3.4. [Selectors](#selectors)   
-   - 3.5. [Services](#services)   
+   - 3.5. [annotations](#annotations)   
+   - 3.6. [Services](#services)   
 
 <!-- /MDTOC -->
 
@@ -203,6 +204,15 @@ The API currently supports two types of selectors:
 
 ![Selectors based on nodes](assets/Api&coreConcepts-8e508.png)
 
+## annotations
+
+You can use Kubernetes annotations to attach arbitrary non-identifying metadata to objects. Clients such as tools and libraries can retrieve this metadata.
+we can use annotations for : 
+- Build, release, or image information like timestamps, release IDs, git branch, PR numbers, image hashes, and registry address.
+-   User or tool/system provenance information, such as URLs of related objects from other ecosystem components.
+...
+
+annotations are **not used to identify and select objects**.
 ## Services
 
 In this section we will discuss the implementation of services not their definition, please refer to [README](README.md#services)
