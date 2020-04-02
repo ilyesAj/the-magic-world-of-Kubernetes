@@ -140,8 +140,7 @@ $ kubectl get pods --show-labels --watch
 ```
 
 > in imperative commands:  
->`` kubectl run --generator=run-pod/v1 --image=nginx:stable-alpine pod-example && kubectl label pod pod-example app=nginx env=prod && kubectl get pods --watch
-``
+>``kubectl run --generator=run-pod/v1 --image=nginx:stable-alpine pod-example && kubectl label pod pod-example app=nginx env=prod && kubectl get pods --watch``
 
 Note that the Pod is created and immediately terminated.
 

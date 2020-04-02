@@ -18,11 +18,12 @@
 
 <!-- /MDTOC -->
 
-# API ?
+# API 
 
 The REST API is the **KeyStone** of kubernetes .All operations and communications between components, and external users are API calls that the API Server handles . An object oriented architecture is used .  
 **Main format:**
-````
+
+````html
 /api/<version>
 /apis/<group>/<version>/<resource>
 ````

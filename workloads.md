@@ -5,6 +5,23 @@ Workloads within Kubernetes are higher level objects that manage Pods or other h
 In **ALL CASES** a Pod Template is included, and acts the base tier of management.
 Pod Template are used by controllers to create new pods .
 
+## Simple Pod 
+
+You can create a simple pod object with one replica, using either declarative or imperative mode:
+````yml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: init-demo
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    ports:
+    - containerPort: 80
+````
+> ``kubectl run pod --generator=run-pod/v1 --image=nginx init-demo``
+
 ## ReplicaSets
 
 A ReplicaSet’s purpose is to maintain a stable set of replica Pods running at any given time. As such, it is often used to guarantee the availability of a specified number of identical Pods  
@@ -49,3 +66,48 @@ time without spinning up additional pods.
 ## StatefulSets
 
 ## DaemonSet
+
+A DaemonSet ensures that all (or some) Nodes run a copy of a Pod based on same criteria .
+If node is added, the daemonSet will automatically add a pod if node match certain criteria ( based on [node affinity](scheduling.md/#node-affinity-&-anti-affinity
+))
+DaemonSet are usually used in :
+
+- Running a daemon Storage on each node such as ``ceph`` or ``glusterd``
+- running a logs collection daemon on every node, such as ``fluentd`` or ``filebeat``
+- running a node monitoring daemon on every node, such as ``Prometheus Node Exporter``,
+### Implementation
+
+DaemonSet deployment are the same as replicaSet:
+
+````yml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: rs-example
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    <pod template>
+
+````
+
+### how does it work 
+
+- ``v1.12 and earlier``: DemonSets by passed the default scheduler and managed on their own the create and deletion of the pods . this approch caused multiple confusion :
+  - Inconsistent Pod behavior : no pending state when a pod waits to be scheduled by the deamonSet
+  - Pod preemption : DeamonSet controller will make scheduling decisions without considering pod priority and preemption
+- ``v1.12 and later``: deamonSets uses the default scheduler to manage pods: it uses node affinity to specify where to place a node 
+
+>note that kube-scheduler has no effect on DeamonSet, pods created by a deamonSet are managed by DeamonSet controller
+
+## Multiple schedulers 
+
+when you have multiple schedulers running on the cluster you can specify which one will the pod use with `schedulerName` field .
+
+> to view events on the local namespace use `kubectl get events `
+> To view logs of the schedular `kubectl logs kube-schedular -n kube-system `
+**To discuss : Leader on a HA setup ?**
+⚠️ when you have multiple schedulers in the same cluser only ONE can be a leader, if you add a custom scheduler you have to modify binding port (http with `--port` and https with `--secure-port`) and set `--leader-elect` to `false` and also `scheduler-name`
