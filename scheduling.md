@@ -233,3 +233,13 @@ spec:
     image: nginx
   nodeName: node01
 ````
+
+## Multiple schedulers
+
+when you have multiple schedulers running on the cluster you can specify which one will the pod use with `schedulerName` field .
+
+> to view events on the local namespace use `kubectl get events`
+> To view logs of the schedular `kubectl logs kube-schedular -n kube-system`
+
+**To discuss : Leader on a HA setup ?**
+⚠️ when you have multiple schedulers in the same cluser only ONE can be a leader, if you add a custom scheduler you have to modify binding port (http with `--port` and https with `--secure-port`) and set `--leader-elect` to `false` and also `scheduler-name`

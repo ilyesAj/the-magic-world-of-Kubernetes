@@ -8,6 +8,7 @@ Pod Template are used by controllers to create new pods .
 ## Simple Pod 
 
 You can create a simple pod object with one replica, using either declarative or imperative mode:
+
 ````yml
 apiVersion: v1
 kind: Pod
@@ -20,6 +21,7 @@ spec:
     ports:
     - containerPort: 80
 ````
+
 > ``kubectl run pod --generator=run-pod/v1 --image=nginx init-demo``
 
 ## ReplicaSets
@@ -63,8 +65,6 @@ In addition to `ReplicaSet` required fields, two new fields are required for the
 We could set `maxSurge` to 0 and `maxUnavailable` to 1. This would cycle through updating 1 at a
 time without spinning up additional pods.
 
-## StatefulSets
-
 ## DaemonSet
 
 A DaemonSet ensures that all (or some) Nodes run a copy of a Pod based on same criteria .
@@ -75,6 +75,7 @@ DaemonSet are usually used in :
 - Running a daemon Storage on each node such as ``ceph`` or ``glusterd``
 - running a logs collection daemon on every node, such as ``fluentd`` or ``filebeat``
 - running a node monitoring daemon on every node, such as ``Prometheus Node Exporter``,
+
 ### Implementation
 
 DaemonSet deployment are the same as replicaSet:
@@ -94,7 +95,7 @@ spec:
 
 ````
 
-### how does it work 
+### how does it work
 
 - ``v1.12 and earlier``: DemonSets by passed the default scheduler and managed on their own the create and deletion of the pods . this approch caused multiple confusion :
   - Inconsistent Pod behavior : no pending state when a pod waits to be scheduled by the deamonSet
@@ -103,11 +104,5 @@ spec:
 
 >note that kube-scheduler has no effect on DeamonSet, pods created by a deamonSet are managed by DeamonSet controller
 
-## Multiple schedulers 
+## StatefulSets
 
-when you have multiple schedulers running on the cluster you can specify which one will the pod use with `schedulerName` field .
-
-> to view events on the local namespace use `kubectl get events `
-> To view logs of the schedular `kubectl logs kube-schedular -n kube-system `
-**To discuss : Leader on a HA setup ?**
-⚠️ when you have multiple schedulers in the same cluser only ONE can be a leader, if you add a custom scheduler you have to modify binding port (http with `--port` and https with `--secure-port`) and set `--leader-elect` to `false` and also `scheduler-name`
