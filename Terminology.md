@@ -120,3 +120,4 @@ common layers are :
   -**Canary Deployment**:Canary deployment is like blue-green, except it’s more risk-averse.With this deployment, you deploy a new application code in a small part of the production infrastructure. Once the application is signed off for release, **only a few users are routed to it**. This minimizes any impact.
   With no errors reported, the new version can gradually roll out to the rest of the infrastructure.
   ![Canary](assets/Terminology-210615.png)
+- **Base-64 encoding** is a way of taking binary data and turning it into text so that it's more easily transmitted in things like e-mail and HTML form data. refer to [more details](https://stackoverflow.com/questions/201479/what-is-base-64-encoding-used-for)

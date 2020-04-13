@@ -1,0 +1,2 @@
+# logging
+For gathering metrics we either use kubernetes metrics server (the new heapster) . this server collects metrics from all kubelets and aggragates them **in-memory**.kubelets collects logs and metrics from containers via ``cAdvisor`` .we usually uses prometheus or elastic stack for more complex monitoring. 

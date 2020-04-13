@@ -16,10 +16,150 @@ spec:
   - name: envar-demo-container
     image: gcr.io/google-samples/node-hello:1.0
     env:
-    - name: DEMO_GREETING
-      value: "Hello from the environment"
-    - name: DEMO_FAREWELL
-      value: "Such a sweet sorrow"
+    - name: city
+      value: "vélizy"
+    - name: state
+      value: "ile-de-france"
+````
+the problem in this approch is the workload portability : To change a configuration of a pod you have to access to the pod definition and modify it . Using ConfigMap guaranties keeping containerized applications portable.
+## ConfigMap 
+Configmap data is stored “outside” of the cluster **(in etcd)**
+They are insanely versatile. You can inject them as environment variables at runtime, as a command arg, or as a file or folder via a volume mount.
+
+- **declarative way:** 
+Write config map manually :  
+
+````yml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: manifest-example
+data:
+  city: vélizy
+  state: ile-de-france
 ````
 
-## ConfigMap 
+- **imperative way :**
+  - **As a string :** `kubectl create configmap literal-example --from-literal="city=vélizy" --from-literal=state=ile-de-france`
+  - **From a file(s)** : `kubectl create configmap file-example --from-file=cm/city --from-file=cm/state`
+  - **From a folder:** , kubectl identifies files whose basename is a valid key in the directory and packages each of those files into the new ConfigMap. Any directory entries except regular files are ignored`kubectl create configmap dir-example --from-file=cm`
+
+
+the ``configMap`` is then injected into the pod definition as environment vars or as a volume : 
+- environment vars:
+
+````yml
+...
+spec:
+  Containers:
+  - name: envar-demo-container
+    ...
+    envFrom:
+      - configMapRef:
+          name: manifest-example
+...
+
+````
+
+- Volume mount : 
+
+````yml
+spec:
+  Containers:
+  - name: envar-demo-container
+    ...
+    volumeMounts:
+    - name: appConfigVol
+      mountPath: /etc/config
+  volumes:
+  - name: appConfigVol
+    ConfigMap:
+      name: manifest-example
+````
+
+## Secret
+
+Based on ``configMap``, this resource is essentially used for storing password and credentials . the only difference between `secret` and `configMap` is that `secret` Stores data as base64 encoded content and can be encrypted at rest within etcd (if configured!).  
+**🏴‍☠️ encoding a secret is not securing it !!**
+💁 refer to this [conference](https://www.youtube.com/watch?v=f4Ru6CPG1z4)
+>**why we use base64:**  
+This allows you to encode aribtrary bytes to bytes which are known to be safe to send without getting corrupted (ASCII alphanumeric characters and a couple of symbols). 
+
+example : 
+````yml
+apiVersion: v1
+kind: Secret
+metadata: 
+  name: manifest-data
+type: opaque
+data:
+  username: aWx5ZXMK
+  password: cGFzc3dvcmQK
+````
+- `type:`
+  - `Opaque` arbitrary data(unstructred) .this is the default value
+  - `kubernetes.io/service-account-token` : Kubernetes auth token
+  - `kubernetes.io/dockercfg`: Docker registry auth
+  - `kubernetes.io/dockerconfigjson`: Latest Docker registry auth
+  - `tls`: Create a TLS secret from the given public/private key pair.
+  The public key certificate must be .PEM encoded and match the given private key.  
+  a special syntax will be used in this case. 
+
+- `data:` Contains key-value pairs of base64 encoded content (if the data inserted in plain text , k8s will automatically encode it with `base64`
+
+>create a secret for the docker registry: 
+
+````sh
+kubectl create secret docker-registry my-secret --docker-server=DOCKER_REGISTRY_SERVER --docker-username=DOCKER_USER --docker-password=DOCKER_PASSWORD --docker-email=DOCKER_EMAIL
+````
+> create a secret for TLS :
+````sh
+kubectl create secret tls tls-secret --cert=path/to/tls.cert --key=path/to/tls.key
+````
+
+### decrypt a secret 
+
+````sh
+kubectl get secrets db-secret -o yaml
+# use `echo 'encoded_password' | base64 --decode` to view in plain text
+````
+### injecting secrets 
+
+- environment vars:
+
+````yml
+...
+spec:
+  Containers:
+  - name: envar-demo-container
+    ...
+    envFrom:
+      - secretRef:
+          name: manifest-example
+...
+````
+- Volume mount : 
+
+````yml
+spec:
+  Containers:
+  - name: envar-demo-container
+    ...
+    volumeMounts:
+    - name: appConfigVol
+      mountPath: /etc/config
+  volumes:
+  - name: appConfigVol
+    secret:
+      name: manifest-example
+````
+
+### how kubernetes handles secrets 
+
+the way kubernetes handles secrets. Such as:
+
+  - A secret is only sent to a node if a pod on that node requires it.
+
+  - Kubelet stores the secret into a tmpfs so that the secret is not written to disk storage.
+
+  - Once the Pod that depends on the secret is deleted, kubelet will delete its local copy of the secret data as well.
