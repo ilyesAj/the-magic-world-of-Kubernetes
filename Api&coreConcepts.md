@@ -75,7 +75,15 @@ apiVersion: v1
 /apis/batch/v1beta1/cronjobs
  #cronjobs
 ````
-
+example of group API:
+- `\healthz`
+- `\version`
+- `\api`
+- `\apis`
+- `\logs`
+- `\metrics`
+![api groups](assets/Api&coreConcepts-144341.png)
+![API groups 2](assets/Api&coreConcepts-144424.png))
 ## Object model
 
 Objects are a persistant entity that represent the desired state of the object within the cluster . **EVERY** object **MUST** have ``apiVersion``, ``kind``, and poses the nested fields: ``metadata.name``, (can be inhereted )``metadata.namespace``, (can be generated Automatically)``metadata.UID``

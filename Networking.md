@@ -318,9 +318,8 @@ Apiserver proxy -> target may use HTTP or HTTPS as chosen by proxy using availab
 - implementation varies by cloud provider.
 
 
-# network policies ??
-https://kubernetes.io/docs/concepts/services-networking/network-policies/
-
+# network policies 
+refer to [here](secure-k8s.md)
 # references
 
 - https://www.projectcalico.org/comparing-kube-proxy-modes-iptables-or-ipvs/

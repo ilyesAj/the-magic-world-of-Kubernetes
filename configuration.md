@@ -3,7 +3,9 @@
 In this markdown we will discuss how we can configure your application within kubernetes 
 
 ## Environnement variables
+
 We can set configutions by passing them as a global vars directly in the pod : 
+
 ````yml
 apiVersion: v1
 kind: Pod
@@ -21,12 +23,15 @@ spec:
     - name: state
       value: "ile-de-france"
 ````
+
 the problem in this approch is the workload portability : To change a configuration of a pod you have to access to the pod definition and modify it . Using ConfigMap guaranties keeping containerized applications portable.
-## ConfigMap 
+
+## ConfigMap
+
 Configmap data is stored “outside” of the cluster **(in etcd)**
 They are insanely versatile. You can inject them as environment variables at runtime, as a command arg, or as a file or folder via a volume mount.
 
-- **declarative way:** 
+- **declarative way:**
 Write config map manually :  
 
 ````yml
@@ -44,8 +49,8 @@ data:
   - **From a file(s)** : `kubectl create configmap file-example --from-file=cm/city --from-file=cm/state`
   - **From a folder:** , kubectl identifies files whose basename is a valid key in the directory and packages each of those files into the new ConfigMap. Any directory entries except regular files are ignored`kubectl create configmap dir-example --from-file=cm`
 
+the ``configMap`` is then injected into the pod definition as environment vars or as a volume :
 
-the ``configMap`` is then injected into the pod definition as environment vars or as a volume : 
 - environment vars:
 
 ````yml
@@ -61,7 +66,7 @@ spec:
 
 ````
 
-- Volume mount : 
+- Volume mount :
 
 ````yml
 spec:
@@ -83,21 +88,23 @@ Based on ``configMap``, this resource is essentially used for storing password a
 **🏴‍☠️ encoding a secret is not securing it !!**
 💁 refer to this [conference](https://www.youtube.com/watch?v=f4Ru6CPG1z4)
 >**why we use base64:**  
-This allows you to encode aribtrary bytes to bytes which are known to be safe to send without getting corrupted (ASCII alphanumeric characters and a couple of symbols). 
+This allows you to encode arbitrary bytes to bytes which are known to be safe to send without getting corrupted (ASCII alphanumeric characters and a couple of symbols).
 
-example : 
+example :
+
 ````yml
 apiVersion: v1
 kind: Secret
-metadata: 
+metadata:
   name: manifest-data
 type: opaque
 data:
   username: aWx5ZXMK
   password: cGFzc3dvcmQK
 ````
+
 - `type:`
-  - `Opaque` arbitrary data(unstructred) .this is the default value
+  - `Opaque` arbitrary data(unstructured) .this is the default value
   - `kubernetes.io/service-account-token` : Kubernetes auth token
   - `kubernetes.io/dockercfg`: Docker registry auth
   - `kubernetes.io/dockerconfigjson`: Latest Docker registry auth
@@ -112,18 +119,21 @@ data:
 ````sh
 kubectl create secret docker-registry my-secret --docker-server=DOCKER_REGISTRY_SERVER --docker-username=DOCKER_USER --docker-password=DOCKER_PASSWORD --docker-email=DOCKER_EMAIL
 ````
-> create a secret for TLS :
-````sh
-kubectl create secret tls tls-secret --cert=path/to/tls.cert --key=path/to/tls.key
-````
 
-### decrypt a secret 
+> create a secret for TLS :
+>
+>````sh
+>kubectl create secret tls tls-secret --cert=path/to/tls.cert --key=path/to/tls.key
+>````
+
+### decrypt a secret
 
 ````sh
 kubectl get secrets db-secret -o yaml
 # use `echo 'encoded_password' | base64 --decode` to view in plain text
 ````
-### injecting secrets 
+
+### injecting secrets
 
 - environment vars:
 
@@ -138,7 +148,8 @@ spec:
           name: manifest-example
 ...
 ````
-- Volume mount : 
+
+- Volume mount :
 
 ````yml
 spec:
@@ -154,12 +165,36 @@ spec:
       name: manifest-example
 ````
 
-### how kubernetes handles secrets 
+### Using secret to pull from a private registry
+
+to pull images from your private registry you can declare a secret containing all the specifications of your private registry :
+
+````sh
+kubectl create secret docker-registry --docker-server=private-reg-container.com:5000 --docker-username=dock_user --docker-password=dock_password --docker-email=dock_user
+@private-reg-container.com private-reg-cred
+````
+
+add the private registry so that it can fetch from it :
+
+````yml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: private-reg
+spec:
+  containers:
+  - name: private-reg-container
+    image: <your-private-image>
+  imagePullSecrets:
+  - name: private-reg-cred
+````
+
+### how kubernetes handles secrets
 
 the way kubernetes handles secrets. Such as:
 
-  - A secret is only sent to a node if a pod on that node requires it.
+- A secret is only sent to a node if a pod on that node requires it.
 
-  - Kubelet stores the secret into a tmpfs so that the secret is not written to disk storage.
+- Kubelet stores the secret into a ``tmpfs`` so that the secret is not written to disk storage.
 
-  - Once the Pod that depends on the secret is deleted, kubelet will delete its local copy of the secret data as well.
+- Once the Pod that depends on the secret is deleted, kubelet will delete its local copy of the secret data as well.
