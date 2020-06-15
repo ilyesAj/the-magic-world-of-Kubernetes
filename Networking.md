@@ -320,6 +320,8 @@ Apiserver proxy -> target may use HTTP or HTTPS as chosen by proxy using availab
 
 # network policies 
 refer to [here](secure-k8s.md)
+# additional references 
+CNI plugin configuration are stored in  `/etc/cni/net.d/`
 # references
 
 - https://www.projectcalico.org/comparing-kube-proxy-modes-iptables-or-ipvs/
